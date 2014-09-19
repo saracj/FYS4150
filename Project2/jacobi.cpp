@@ -5,7 +5,7 @@
 using namespace std;
 using namespace arma;
 
-void Jacobi(mat A, mat R, int n){
+void Jacobi(mat * B, mat * S, int n){
     /* Jacobi's method --> transformation by
     * rotation in a plane*/
 
@@ -14,34 +14,31 @@ void Jacobi(mat A, mat R, int n){
     int k, l;
     double c, s;
 
+    mat A = *B;
+    mat R = *S;
+
     // Function declaration:
     double max_offdiag(mat A, int n, int * k, int * l);
-    mat rotation_matrix(mat A, int k, int l, int n, double * c, double * s, int * counter_trans);
+    mat rotation_matrix(mat A, int k, int l, int n, double * c, double * s);
     mat eigenvector(mat R, int n, int k, int l, double c, double s);
 
     double MAX = max_offdiag(A, n, &k, &l);
     int counter = 0;
-    int counter_trans = 0;
     while ( fabs(MAX) > eps ){
         if( counter >= max_it){
             break;
             cout << "Reached the maximum number of iterations!" << endl;
         }
         MAX = max_offdiag(A, n, &k, &l);
-        A = rotation_matrix(A, k, l, n, &c, &s, &counter_trans);
+        A = rotation_matrix(A, k, l, n, &c, &s);
         R = eigenvector(R, n, k, l, c, s);
         counter += 1;
-        //MAX = 0.;
     }
 
-    vec lambda = A.diag();
-    // A.print("Transformed matrix: ");
-    // R.print("Eigenvector matrix: ");
+    *B = A;
+    *S = R;
+
     cout << "Number of iterations: " << counter << endl;
-    cout << "Number of transformations: " << counter_trans << endl;
-    cout << "Diagonal of transformed matrix contains the matrix' eigenvalues" << endl;
-    cout << "lambda = " << endl;
-    cout << sort(lambda) << endl;
     return;
 }
 
@@ -66,7 +63,7 @@ double max_offdiag(mat A, int n, int * k, int * l){
 return MAX;
 }
 
-mat rotation_matrix(mat A, int k, int l, int n, double * c, double * s, int * counter_trans){
+mat rotation_matrix(mat A, int k, int l, int n, double * c, double * s){
     /* Finds the values for the index
     * (k,l) in the rotation matrix and
     * calculates cos() and sin() from
@@ -94,7 +91,6 @@ mat rotation_matrix(mat A, int k, int l, int n, double * c, double * s, int * co
 
         *c = 1./sqrt(1 + t*t);
         *s = (*c)*t;
-        *counter_trans += 1;
     }
     else{ //theta = 0
         *c = 1.0;
