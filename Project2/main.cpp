@@ -6,7 +6,7 @@
 
 int main(){
     // int n = atoi(argv[1]);
-    int n = 300;
+    int n = 275;
     double N = (double) n;
     double rho_max = 10.;
     double rho_min = 0.;
@@ -14,7 +14,7 @@ int main(){
     double TIME1, TIME2;
 
     // Timing the two methods:
-    clock_t start, finish, start2, finish2; // Declare start and final time
+    clock_t start, finish, start2, finish2; // Declare start and finish time
 
     vec rho(n), V(n);
     for(int i=0; i<n; i++){
