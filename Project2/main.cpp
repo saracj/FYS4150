@@ -6,40 +6,38 @@
 
 int main(){
     // int n = atoi(argv[1]);
-    int n = 275;
+    int n = 100;
     double N = (double) n;
     double rho_max = 10.;
     double rho_min = 0.;
     double h = (rho_max - rho_min)/N;
+    double omega_r = 0.01;
     double TIME1, TIME2;
+    vec rho(n), V(n), eigval;
+    mat A = zeros<mat>(n,n);
+    mat eigvec;
 
     // Timing the two methods:
     clock_t start, finish, start2, finish2; // Declare start and finish time
-
-    vec rho(n), V(n);
     for(int i=0; i<n; i++){
         rho[i] = rho_min + (i+1)*h;
-        V[i] = rho[i]*rho[i];
-    }
+        V[i] = omega_r*rho[i]*rho[i] + 1./rho[i];
+        }
 
     //Initializes the matrix A:
-    mat A = zeros<mat>(n,n);
     A.diag(-1) += -1./(h*h);
     A.diag(+1) += -1./(h*h);
     A.diag() = (2./(h*h)) + V;
 
-    // Initial nxn eigenvector matrix using the .diag
-    // function from armdillo:
+    // Eigenvector matrix:
     mat R = eye<mat>(n,n);
 
     // Built in eigenvalue/eigenvector procedure in armadillo:
-
-    mat eigvec;
-    vec eigval;
     start2 = clock();
     eig_sym(eigval, eigvec, A);
     finish2 = clock();
 
+    // Jacobi method:
     start = clock();
     Jacobi(&A, &R, n);
     finish = clock();
@@ -56,19 +54,13 @@ int main(){
     //lambda.print("lambda = ");
     //cout << "Built in eigenvalue procedure in armadillog gives:" << endl;
     //eigval.print("lambda_armadillo = ");
-    cout << "computation time for jacobi.cpp with n = " << n << ": " << TIME1 << endl;
-    cout << "computation time for built in procedure with n = " << n << ": " << TIME2 << endl;
 
-
-    /*
-    // Constant for analytical solution:
-    m = ; // electron mass
-    h_bar = ; // Reduced Planck constant
-    k =
-    // Checking agains analytical solution for eigenvalues:
-    alpha = pow((h_bar*h_bar/(m*k)), 0.25);
-    lambda = 2.*m*alpha*alpha*E/(h_bar*h_bar);
-    */
+    cout << "The three first eigenvalues for \omega_r = " << omega_r << " with n = " << n << ":" << endl;
+    cout << lambda(0) << endl;
+    cout << lambda(1) << endl;
+    cout << lambda(2) << endl;
+    cout << "computation time for jacobi.cpp with n = " << n << ": " << TIME1 << " s" << endl;
+    cout << "computation time for built in procedure with n = " << n << ": " << TIME2 << " s" << endl;
 
     return 0;
 }
