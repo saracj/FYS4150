@@ -16,7 +16,7 @@ def read_file(filename):
   rho = array(rho)
   return u, rho
 
-files = ["wavefunc2_omega1.dat", "wavefunc2_omega50.dat", "wavefunc2_omega100.dat", "wavefunc2_omega500.dat"]
+files = ["wavefunc_omega1.dat", "wavefunc_omega50.dat", "wavefunc_omega100.dat", "wavefunc_omega500.dat"]
 
 u1, rho1 = read_file(files[0])
 u2, rho2 = read_file(files[1])
@@ -30,7 +30,7 @@ plt.plot(rho3, u3*u3)
 plt.plot(rho4, u4*u4)
 plt.xlabel(r'$ \rho = (1/\alpha)r$')
 plt.ylabel(r'$u( \rho )^2 = \, (r R(r))^2$')
-plt.title(r'Wavefunction for different frequencies $\omega_r$, $V_i = \omega_r^2 \rho_{i}^{2}$')
+plt.title(r'Wavefunction for different frequencies $\omega_r$, $V_i = \omega_r^2 \rho_{i}^{2} + 1/\rho$')
 plt.legend(['$\omega_r$ = 0.01','$\omega_r$ = 0.5','$\omega_r$ = 1', '$\omega_r$ = 5'])
-plt.savefig('wave_func2.png')
+plt.savefig('wave_func.png')
 plt.show()
