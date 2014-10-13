@@ -1,45 +1,43 @@
 #include "celestialbodies.h"
 #include <armadillo>
 
-celestialbodies::celestialbodies(double m, double M, double r, vec init_pos, vec init_vel, double dt){
-    // The variables and parameters to be used in the class celestialbodies
-    // need to be specified by this->paramater. We give the value of these
-    // parameters in the main-file or in the solarsystem.cpp. This constructor
-    // call decides which two bodies are being calculated
-    this->m = m;
-    this->M = M;
-    this->r = r;
-    pos(0,0) = init_pos(0);
-    pos(0,1) = init_pos(1);
-    vel(0,0) = init_vel(0);
-    vel(0,1) = init_vel(1);
-    F_g  = (0,0);
+using namespace arma;
+using namespace std;
 
-    for(i=0;i<n;i++){
-        RK4_vel();
-        position();
-    }
+celestialbodies::celestialbodies(string id, double MASS, vec pos, vec vel){
+    // INPUT: id   --> (short) string describing the object, for example by name
+    //        MASS --> mass of object
+    //        pos  --> Position of object
+    //        vel  --> Velocity of object
+
+    this->position = pos;
+    this->velocity = vel;
+    this->m = MASS;
 }
 
-vec celestialbodies::f(vec position, double t){
-    F_g(0) = G*M*m*position(i,0)/(r*r);
-    F_g(1) = G*M*m*position(i,1)/(r*r);
-    acceleration = F_g/m;
-    return acceleration;
+// Updates postion
+void celestialbodies::setPos(vec newPosition){
+    position = newPosition;
 }
 
-void celestialbodies::RK4_vel(){
-    // Calculates the vel[i+1] value using the
-    // Runge-Kutta, fourth order.
-
-    // Velocity
-    k1 = dt*f(pos(i, i), t(i));
-    k2 = dt*f(pos(i, i) + 0.5*k1, t(i) + 0.5*dt);
-    k3 = dt*f(pos(i, i) + 0.5*k2, t(i) + 0.5*dt);
-    k4 = dt*f(pos(i, i) + k3, t(i) + dt);
-    vel(i+1, i+1) = vel(i, i) + (1/6.)*(k1 + 2*k2 + 2*k3 + k4);
+// Updates velocity
+void celestialbodies::setVel(vec newVelocity){
+    velocity = newVelocity;
 }
 
-void celestialbodies::position(){
-    pos(i+1, i+1) = pos(i,i) + dt*v(i,i);
+// Updates force on object
+void celestialbodies::setF(vec newForce){
+    force = newForce;
 }
+
+//Find distance between this and a different object
+vec celestialbodies::distance(celestialbodies different){
+    vec dist = different.getPos() - getPos();
+    return dist;
+}
+
+double celestialbodies::getM(){ return m; }
+string celestialbodies::getID() {return id;}
+vec celestialbodies::getPos(){ return position; }
+vec celestialbodies::getVel(){ return velocity; }
+vec celestialbodies::getForce(){ return force; }
