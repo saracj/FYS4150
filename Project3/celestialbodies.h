@@ -9,7 +9,7 @@ class celestialbodies{
 private:
     vec position, velocity, force;
     double m;
-    string id;
+    string ID;
 
 public:
     celestialbodies(string, double, vec, vec);
@@ -18,6 +18,7 @@ public:
     string getID();
     vec getPos(), getVel(), getForce();
     vec getDist(celestialbodies);
+    vec next;
 
     void setPos(vec), setVel(vec), setF(vec);
 };

@@ -13,7 +13,7 @@ celestialbodies::celestialbodies(string id, double MASS, vec pos, vec vel){
     this->position = pos;
     this->velocity = vel;
     this->m = MASS;
-    this->ID = id
+    this->ID = id;
 }
 
 // Updates postion
