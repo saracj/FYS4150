@@ -16,7 +16,7 @@ void solarsystem::AddObject(celestialbodies newobject){
 // Gravitational force working on one object by the other objects
 vec solarsystem::getForces(celestialbodies object){
     vec F_g = zeros<vec>(2);
-
+    cout << getNumberOfObj() << endl;
     for(i=0; i < getNumberOfObj(); i++){
         if(object.getID() == objects[i].getID()){ continue; }
         R = object.getDist(objects[i]);
@@ -30,8 +30,8 @@ vec solarsystem::getForces(celestialbodies object){
 
 // Acceleration of one object
 vec solarsystem::acceleration(celestialbodies object){
-    // cout << getForces(object) << endl;
-    accel = getForces(object);//object.getM();
+    cout << getForces(object) << endl;
+    accel = getForces(object)/object.getM();
     return accel;
 }
 
@@ -65,12 +65,17 @@ vec solarsystem::advance(celestialbodies object){
     object.setVel(next_vel);
     object.setPos(next_pos);
 
-    vec next = (next_pos(0), next_pos(1), next_vel(0), next_vel(1));
+    vec next;
+    next(0) = next_pos(0);
+    next(1) = next_pos(1);
+    next(2) = next_vel(0);
+    next(3) = next_vel(1);
     return next;
     // Saving position and time to arrays
     // *pos_mat[i+1, i+1] = next_pos;
     // *vel_mat[i+1, i+1] = next_vel;
 }
+
 int solarsystem::getNumberOfObj(){ return objects.size(); }
 
 

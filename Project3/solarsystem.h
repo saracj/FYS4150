@@ -25,9 +25,6 @@ private:
     double G; // Gravitational constant [Au^3 / yr^2 M_sun]
     int i;
     vec pos, vel, next_pos, next_vel, R, accel;
-
-
-
 };
 
 #endif // SOLARSYSTEM_H
