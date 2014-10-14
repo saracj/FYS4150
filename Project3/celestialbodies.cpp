@@ -13,6 +13,7 @@ celestialbodies::celestialbodies(string id, double MASS, vec pos, vec vel){
     this->position = pos;
     this->velocity = vel;
     this->m = MASS;
+    this->ID = id
 }
 
 // Updates postion
@@ -31,13 +32,13 @@ void celestialbodies::setF(vec newForce){
 }
 
 //Find distance between this and a different object
-vec celestialbodies::distance(celestialbodies different){
-    vec dist = different.getPos() - getPos();
+vec celestialbodies::getDist(celestialbodies other){
+    vec dist = other.getPos() - this->getPos();
     return dist;
 }
 
 double celestialbodies::getM(){ return m; }
-string celestialbodies::getID() {return id;}
+string celestialbodies::getID() { return ID; }
 vec celestialbodies::getPos(){ return position; }
 vec celestialbodies::getVel(){ return velocity; }
 vec celestialbodies::getForce(){ return force; }

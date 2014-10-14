@@ -1,43 +1,73 @@
 #include "solarsystem.h"
+#include "celestialbodies.h"
+#include <cmath>
 #include <armadillo>
 
-solarsystem::solarsystem()
-{
+using namespace arma;
+using namespace std;
+
+solarsystem::solarsystem(){
 }
 
+void solarsystem::AddObject(celestialbodies newobject){
+    objects.push_back(newobject);
+}
+
+// Gravitational force working on one object by the other objects
 vec solarsystem::getForces(celestialbodies object){
-    vec F_g(2);
-    r = object.diastance(objects[i]);
-    m = object.getM();
-    M = objects[i].getM();
-    F_g = G*M*m*(object.getPos())*r/pow(norm(r, 2), 3);
+    vec F_g = zeros<vec>(2);
+
+    for(i=0; i < getNumberOfObjects(); i++){
+        if(object.getID() == objects[i].getID()){ continue; }
+        R = object.getDist(objects[i]);
+        m = object.getM();
+        M = objects[i].getM();
+        G = 1.2e-21; // Gravitational constant [Au^3 / yr^2 M_sun]
+        F_g += G*M*m*R/pow(norm(R), 3);
+    }
     return F_g;
 }
 
-void solarsystem::acceleration(celestialbodies object){
-    acceleration = getForce(object)/object.getM();
+// Acceleration of one object
+vec solarsystem::acceleration(celestialbodies object){
+    acceleration = getForces(object)/object.getM();
     return acceleration;
 }
 
 // Advances one object one time step ahead
-void solarsystem::advance(object){
-    a1 = acceleration(object.getPos(object));
-    a2 = acceleration(object.getPos(object) + 0.5*k1);
-    a3 = acceleration(object.getPos(object) + 0.5*k2);
-    a4 = acceleration(object.getPos(object) + k3);
+void solarsystem::advance(celestialbodies object, mat * pos_mat, mat * vel_mat, int i){
 
     // Runge-Kutta, fourth order:
-    k1 = dt*a1;
-    k2 = dt*a2;
-    k3 = dt*a3;
-    k4 = dt*a4;
-    vel = vel + (1/6.)*(k1 + 2*k2 + 2*k3 + k4);
+    vel = object.getVel();
+    pos = object.getPos();
 
-    // Position:
-    pos(i+1, i+1) = pos(i,i) + dt*v(i,i);
-}
+    k1 = acceleration(object);
+    K1 = object.getVel();
 
-int solarsystem::getNumberOfObj(){
+    // This needs to be done between each k because
+    // the force depends on position, meaning
+    // that we need to update the position
+    object.setPos(pos + 0.5*dt*K1);
+    k2 = acceleration(object);
+    K2 = object.getVel();
+
+    object.setPos(pos + 0.5*dt*K2);
+    k3 = acceleration(object);
+    K3 = object.getVel();
+
+    object.setPos(pos + 0.5*dt*K3);
+    k4 = acceleration(object);
+    K4 = object.getVel();
+
+    next_vel = vel + (1/6.)*(k1 + 2*k2 + 2*k3 + k4);
+    next_pos = pos + (1/6.)*(K1 + 2*K2 + 2*K3 + K4);
+    object.setVel(next_vel);
+    object.setPos(next_pos);
+
+    // Saving position and time to arrays
+    *pos_mat[i+1, i+1] = next_pos;
+    *vel_mat[i+1, i+1] = next_vel;
 }
+int solarsystem::getNumberOfObj(){ return objects.size(); }
 
 
