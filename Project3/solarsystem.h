@@ -11,19 +11,20 @@ public:
     vec velocity;
     vector<celestialbodies> objects;
 
-    int getNumberOfObjects();
+    int getNumberOfObj();
     vec getForces(celestialbodies);
     vec acceleration(celestialbodies);
     void AddObject(celestialbodies);
-    void advance(celestialbodies, mat*, mat*, int);
+    vec advance(celestialbodies);
 
 private:
-    double dt, length, R, m, M;
-    double k1, k2, k3, k4;
-    double K1, K2, K3, K4;
+    double dt, length, m, M;
+    vec k1, k2, k3, k4;
+    vec K1, K2, K3, K4;
+    vec next;
     double G; // Gravitational constant [Au^3 / yr^2 M_sun]
     int i;
-    vec pos, vel, next_pos, next_vel;
+    vec pos, vel, next_pos, next_vel, R, accel;
 
 
 

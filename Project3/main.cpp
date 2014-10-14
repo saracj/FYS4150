@@ -15,11 +15,12 @@ int main(){
     double vx = G*1./1.; // vr^2 = G*M_sun
     double vy = 0;
     vec pos_earth(2), vel_earth(2), pos_sun(2), vel_sun(2), time(n);
+    vec NEXT;
 
     // Initial conditions, earth:
     vel_earth(0) = vx; vel_earth(1) = vy; pos_earth(0) = 0; pos_earth(1) = r;
     // Initial conditions, Sun:
-    vel_sun(0) = 0; vel_sun(0) = 0; pos_sun(0) = 0; pos_sun(1) = 0;
+    vel_sun(0) = 0; vel_sun(1) = 0; pos_sun(0) = 0; pos_sun(1) = 0;
 
     solarsystem MySolarsystem;
     // object(string name, mass, position, velocity)
@@ -30,11 +31,11 @@ int main(){
     MySolarsystem.AddObject(earth);
 
     int i = 0;
-    mat earth_pos = zeros<mat>(n, 2);
-    mat earth_vel = zeros<mat>(n, 2);
+    // mat earth_pos = zeros<mat>(n, 2);
+    // mat earth_vel = zeros<mat>(n, 2);
     int t = 0;
     while(t < T){
-        MySolarsystem.advance(earth, &earth_pos, &earth_vel, i);
+        NEXT = MySolarsystem.advance(earth);
         time[i+1] = time[i] + dt;
         t += dt;
         i += 1;

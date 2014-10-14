@@ -17,7 +17,7 @@ void solarsystem::AddObject(celestialbodies newobject){
 vec solarsystem::getForces(celestialbodies object){
     vec F_g = zeros<vec>(2);
 
-    for(i=0; i < getNumberOfObjects(); i++){
+    for(i=0; i < getNumberOfObj(); i++){
         if(object.getID() == objects[i].getID()){ continue; }
         R = object.getDist(objects[i]);
         m = object.getM();
@@ -30,12 +30,13 @@ vec solarsystem::getForces(celestialbodies object){
 
 // Acceleration of one object
 vec solarsystem::acceleration(celestialbodies object){
-    acceleration = getForces(object)/object.getM();
-    return acceleration;
+    // cout << getForces(object) << endl;
+    accel = getForces(object);//object.getM();
+    return accel;
 }
 
 // Advances one object one time step ahead
-void solarsystem::advance(celestialbodies object, mat * pos_mat, mat * vel_mat, int i){
+vec solarsystem::advance(celestialbodies object){
 
     // Runge-Kutta, fourth order:
     vel = object.getVel();
@@ -64,9 +65,11 @@ void solarsystem::advance(celestialbodies object, mat * pos_mat, mat * vel_mat, 
     object.setVel(next_vel);
     object.setPos(next_pos);
 
+    vec next = (next_pos(0), next_pos(1), next_vel(0), next_vel(1));
+    return next;
     // Saving position and time to arrays
-    *pos_mat[i+1, i+1] = next_pos;
-    *vel_mat[i+1, i+1] = next_vel;
+    // *pos_mat[i+1, i+1] = next_pos;
+    // *vel_mat[i+1, i+1] = next_vel;
 }
 int solarsystem::getNumberOfObj(){ return objects.size(); }
 
