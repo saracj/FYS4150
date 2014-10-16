@@ -14,11 +14,14 @@ celestialbodies::celestialbodies(string id, double MASS, vec pos, vec vel){
     this->velocity = vel;
     this->m = MASS;
     this->ID = id;
+
 }
 
 // Updates postion
 void celestialbodies::setPos(vec newPosition){
-    position = newPosition;
+    // cout << newPosition << endl;
+    this->position = newPosition;
+    cout << position << endl;
 }
 
 // Updates velocity
@@ -33,7 +36,7 @@ void celestialbodies::setF(vec newForce){
 
 //Find distance between this and a different object
 vec celestialbodies::getDist(celestialbodies other){
-    vec dist = other.getPos() - this->getPos();
+    vec dist = other.getPos() - getPos();
     return dist;
 }
 
