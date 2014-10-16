@@ -35,9 +35,7 @@ int main(){
     MySolarsystem.AddObject(earth);
 
     for(i=1; i<n-1; i++){
-        cout << "Main for-loop counter = " << i << endl;
         NEXT_earth = MySolarsystem.RK4(earth); // (x, y, vx, vy)
-        cout << "next-array: " << NEXT_earth << endl;
         earth_pos(i, 0) = NEXT_earth(0);
         earth_pos(i, 1) = NEXT_earth(1);
         time(i+1) = time(i) + dt;
