@@ -12,15 +12,14 @@ private:
     string ID;
 
 public:
-    celestialbodies(string, double, vec, vec);
+    celestialbodies(string id, double mass, vec pos, vec vel);
 
     double getM();
     string getID();
-    vec getPos(), getVel(), getForce();
+    vec getPos(), getVel();
     vec getDist(celestialbodies);
-    vec next;
 
-    void setPos(vec), setVel(vec), setF(vec);
+    void setPos(vec), setVel(vec);
 };
 
 #endif // CELESTIALBODIES_H
