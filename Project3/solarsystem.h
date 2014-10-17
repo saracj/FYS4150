@@ -1,32 +1,45 @@
 #ifndef SOLARSYSTEM_H
 #define SOLARSYSTEM_H
 #include <armadillo>
+#include <fstream>
 #include "celestialbodies.h"
 
 class solarsystem{
 
+private:
+    double dt, length, m, M, G;
+    vec fg, R;
+    mat F_g, F;
+    mat accel, all_pos, all_vel;
+    mat ak1, vk1, ak2, vk2, ak3, vk3, ak4, vk4;
+
+    mat all_accel, all_positions, all_velocities;
+    mat RK4_pos, RK4_vel, RK4_next_pos, RK4_next_vel;
+
+    mat verlet_next_pos, verlet_pos, verlet_vel, verlet_next, previous_pos;
+
+    vec i_vel, i_pos;
+
+    std::ofstream outFile;
+
 public:
     solarsystem(double);
+    ~solarsystem() {this->outFile.close();}
+
     vec position;
     vec velocity;
-    vector<celestialbodies> objects;
+    vector<celestialbodies*> objects;
 
     int getNumberOfObj();
-    vec getForces(celestialbodies);
-    vec acceleration(celestialbodies);
-    void AddObject(celestialbodies);
+    mat getForces();
+    mat acceleration();
+    void AddObject(celestialbodies *);
     void RK4();
-    vec verlet(celestialbodies);
+    void verlet(int i);
+    void setAllPositions(mat), setAllVelocities(mat);
+    mat getAllPos(), getAllVel();
+    void dumpToFile();
 
-private:
-    double dt, length, m, M;
-    vec k1, k2, k3, k4;
-    vec K1, K2, K3, K4;
-    vec fg;
-    double G; // Gravitational constant [Au^3 / yr^2 M_sun]
-    int i;
-    vec RK4_pos, RK4_vel, RK4_next_pos, RK4_next_vel, R, accel;
-    vec verlet_next_pos, verlet_pos, verlet_vel, verlet_next, previous_pos;
 };
 
 #endif // SOLARSYSTEM_H
