@@ -2,6 +2,8 @@
 #define SOLARSYSTEM_H
 #include <armadillo>
 #include <fstream>
+#include <sstream>
+#include <string>
 #include "celestialbodies.h"
 
 class solarsystem{
@@ -20,10 +22,11 @@ private:
 
     vec i_vel, i_pos;
 
+    string filename;
     std::ofstream outFile;
 
 public:
-    solarsystem(double);
+    solarsystem(double time_step, string method_dt_endTime);
     ~solarsystem() {this->outFile.close();}
 
     vec position;

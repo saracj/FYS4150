@@ -3,14 +3,15 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <armadillo>
 
 using namespace arma;
 using namespace std;
 
-solarsystem::solarsystem(double dt){
-    this->outFile.open("/scratch/saracj/Data_RK4.dat", ios::out); //("../Project3/Data_RK4.dat", ios::out);
+solarsystem::solarsystem(double dt, string method_dt_T){
+    filename = "../Project3/Data_" + method_dt_T + ".dat";
+    cout << filename << endl;
+    this->outFile.open(filename.c_str(), ios::out);
     this->dt = dt;
 }
 
@@ -23,8 +24,10 @@ mat solarsystem::getForces(){
     G = 4*M_PI*M_PI; // Gravitational constant [Au^3 / yr^2 M_sun]
     F_g = zeros<mat>(getNumberOfObj(), 2);
 
-    for(int i=0; i < getNumberOfObj(); i++){  // i=0, k=1
-        for(int k=i+1; k < getNumberOfObj(); k++) { // i=1, k=0
+    for(int i=0; i < getNumberOfObj(); i++){
+        if(objects[i]->getID() == "Sun"){ continue;} // Keep Sun fixed
+
+        for(int k=0; k < getNumberOfObj(); k++) {
 
             if(objects[k]->getID() == objects[i]->getID()){ continue; }
 
@@ -34,7 +37,6 @@ mat solarsystem::getForces(){
 
             fg =  G*M*m*R/ pow(norm(R), 3);
             F_g.row(i) += fg.t();
-            F_g.row(k) -= fg.t(); // Newtons third law
         }
     }
     return F_g;
@@ -69,7 +71,7 @@ void solarsystem::verlet(int i){
     setAllPositions(all_pos);
 
     verlet_pos = getAllPos();
-    if(i == 0){// Euler
+    if(i == 0){
         verlet_next_pos = verlet_pos + getAllVel()*dt + (1./2)*acceleration()*dt*dt;
         previous_pos = verlet_pos;
         setAllPositions(verlet_next_pos);
@@ -79,7 +81,6 @@ void solarsystem::verlet(int i){
         previous_pos = verlet_pos;
         setAllPositions(verlet_next_pos);
     }
-
 
     this->dumpToFile();
 }
