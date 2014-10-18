@@ -9,9 +9,16 @@ using namespace arma;
 using namespace std;
 
 solarsystem::solarsystem(double dt, string method_dt_T){
+
     filename = "../Project3/Data_" + method_dt_T + ".dat";
+    filename_vel = "../Project3/velocities_" + method_dt_T + ".dat";
+
     cout << filename << endl;
+    cout << filename_vel << endl;
+
     this->outFile.open(filename.c_str(), ios::out);
+    this->outFile_vel.open(filename_vel.c_str(), ios::out);
+
     this->dt = dt;
 }
 
@@ -81,6 +88,9 @@ void solarsystem::verlet(int i){
         previous_pos = verlet_pos;
         setAllPositions(verlet_next_pos);
     }
+    // Velocities:
+    verlet_next_vel = (verlet_next_pos - previous_pos)/(2.*dt);
+    setAllVelocities(verlet_next_vel);
 
     this->dumpToFile();
 }
@@ -174,8 +184,10 @@ void solarsystem::dumpToFile() {
     for (int i = 0; i < getNumberOfObj(); i++) {
         for (int j = 0; j < 2; j++) {
             this->outFile << objects[i]->getPos()[j] << " ";
+            this->outFile_vel << objects[i]->getVel()[j] << " ";
         }
     }
     this->outFile << endl;
+    this->outFile_vel << endl;
 }
 

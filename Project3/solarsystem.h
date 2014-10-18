@@ -18,16 +18,18 @@ private:
     mat all_accel, all_positions, all_velocities;
     mat RK4_pos, RK4_vel, RK4_next_pos, RK4_next_vel;
 
-    mat verlet_next_pos, verlet_pos, verlet_vel, verlet_next, previous_pos;
+    mat verlet_next_pos, verlet_next_vel, verlet_pos, verlet_vel, verlet_next, previous_pos;
 
     vec i_vel, i_pos;
 
     string filename;
+    string filename_vel;
     std::ofstream outFile;
+    std::ofstream outFile_vel;
 
 public:
     solarsystem(double time_step, string method_dt_endTime);
-    ~solarsystem() {this->outFile.close();}
+    ~solarsystem() {this->outFile.close(); this->outFile_vel.close();}
 
     vec position;
     vec velocity;
