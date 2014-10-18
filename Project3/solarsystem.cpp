@@ -10,8 +10,8 @@ using namespace std;
 
 solarsystem::solarsystem(double dt, string method_dt_T){
 
-    filename = "../Project3/Data_" + method_dt_T + ".dat";
-    filename_vel = "../Project3/velocities_" + method_dt_T + ".dat";
+    filename = "../Project3/Data/Data_" + method_dt_T + ".dat";
+    filename_vel = "../Project3/Data/velocities_" + method_dt_T + ".dat";
 
     cout << filename << endl;
     cout << filename_vel << endl;
@@ -19,12 +19,20 @@ solarsystem::solarsystem(double dt, string method_dt_T){
     this->outFile.open(filename.c_str(), ios::out);
     this->outFile_vel.open(filename_vel.c_str(), ios::out);
 
+    if(getNumberOfObj() < 3){ // Only interested in this for the two-body problem
+        filename_E = "../Project3/Data/Energy_" + method_dt_T + ".dat";
+        cout << filename_E << endl;
+
+        this->outFile_E.open(filename_E.c_str(), ios::out);
+    }
+
     this->dt = dt;
 }
 
 void solarsystem::AddObject(celestialbodies *newobject){
     objects.push_back(newobject);
 }
+
 
 // Gravitational force working on one object by the other objects
 mat solarsystem::getForces(){
@@ -49,6 +57,7 @@ mat solarsystem::getForces(){
     return F_g;
 }
 
+
 // Acceleration of system, calls getForces().
 mat solarsystem::acceleration(){
     F = getForces();
@@ -59,6 +68,7 @@ mat solarsystem::acceleration(){
     }
     return accel;
 }
+
 
 // Verlet method
 void solarsystem::verlet(int i){
@@ -92,8 +102,15 @@ void solarsystem::verlet(int i){
     verlet_next_vel = (verlet_next_pos - previous_pos)/(2.*dt);
     setAllVelocities(verlet_next_vel);
 
+    if(getNumberOfObj() < 3){ // Only interested in this for the two-body problem
+        potential_energy = potential_E();
+        kinetic_energy = kinetic_E();
+        angular_momentum = ang_momentum();
+    }
+
     this->dumpToFile();
 }
+
 
 // Fourth order Runge-Kutta
 void solarsystem::RK4(){
@@ -146,10 +163,17 @@ void solarsystem::RK4(){
     setAllVelocities(RK4_next_vel);
     setAllPositions(RK4_next_pos);
 
+    if(getNumberOfObj() < 3){ // Only interested in this for the two-body problem
+        potential_energy = potential_E();
+        kinetic_energy = kinetic_E();
+        angular_momentum = ang_momentum();
+    }
+
     this->dumpToFile();
 }
 
-int solarsystem::getNumberOfObj(){ return objects.size(); }
+
+
 
 // Set the positions of all objects in system
 void solarsystem::setAllPositions(mat newPositions){
@@ -163,6 +187,7 @@ void solarsystem::setAllPositions(mat newPositions){
     }
 }
 
+
 // Set the velocities of all objects in system
 void solarsystem::setAllVelocities(mat newVelocities){
     all_velocities = newVelocities;
@@ -175,8 +200,63 @@ void solarsystem::setAllVelocities(mat newVelocities){
     }
 }
 
+
+vec solarsystem::potential_E(){
+    potential = zeros<vec>(getNumberOfObj());
+
+    G = 4*M_PI*M_PI; // Gravitational constant [Au^3 / yr^2 M_sun]
+    for(int i = 0; i < getNumberOfObj(); i++){
+
+        for(int k=0; k < getNumberOfObj(); k++){
+            if(objects[k]->getID() == objects[i]->getID()){ continue; }
+
+            r = norm(objects[i]->getDist(*objects[k]));
+            M = objects[k]->getM();
+
+            potential(i) = -G*m*M/r;
+        }
+    }
+    return potential;
+}
+
+
+vec solarsystem::kinetic_E(){
+    kinetic = zeros<vec>(getNumberOfObj());
+    vel_E = getAllVel();
+
+    for(int i = 0; i < getNumberOfObj(); i++){
+        v = norm(vel_E.row(i)); m = objects[i]->getM();
+
+        kinetic(i) = (1./2)*m*v*v;
+    }
+    return kinetic;
+}
+
+
+vec solarsystem::ang_momentum(){
+    ang_mom = zeros<vec>(getNumberOfObj());
+    vel_E = getAllVel();
+
+    for(int i = 0; i < getNumberOfObj(); i++){
+        m = objects[i]->getM();
+        v = norm(vel_E.row(i));
+
+        for(int k=0; k < getNumberOfObj(); k++){
+            if(objects[k]->getID() == objects[i]->getID()){ continue; }
+
+            r = norm(objects[i]->getDist(*objects[k]));
+            if(getNumberOfObj() <= 2){
+                //cout << "Angular momentum calculations made for stationary Sun. Disregard if Sun is not kept stationary" << endl;
+                ang_mom(i) = r*m*v;}
+        }
+    }
+    return ang_mom;
+}
+
+
 mat solarsystem::getAllPos(){ return all_positions; }
 mat solarsystem::getAllVel(){ return all_velocities; }
+int solarsystem::getNumberOfObj(){ return objects.size(); }
 
 
 void solarsystem::dumpToFile() {
@@ -186,8 +266,12 @@ void solarsystem::dumpToFile() {
             this->outFile << objects[i]->getPos()[j] << " ";
             this->outFile_vel << objects[i]->getVel()[j] << " ";
         }
+        if(getNumberOfObj() < 3){ // Only interested in this for the two-body problem
+            this->outFile_E << potential_energy(i) << " " << kinetic_energy(i) << " " << angular_momentum(i) << " ";
+        }
     }
     this->outFile << endl;
     this->outFile_vel << endl;
+    this->outFile_E << endl;
 }
 
