@@ -10,7 +10,7 @@ using namespace arma;
 int main(){
 
     int j;
-    int n = 10000; // number of steps
+    int n = 100000; // number of steps
 
     double r = 1.; // Distance from earth to sun [AU]
     double G = 4*M_PI*M_PI; // Gravitational constant [Au^3 yr^-2 M_sun^-1]
@@ -43,7 +43,7 @@ int main(){
     for(j=0; j<n-1; j++){
 
         // Print progress.
-        if (j % (n/100) == 0 && n > 1000) {
+        if (j % (n/100) == 0 && n > 999) {
             printf("Progress: %5.1f %% \r", 100*j/ ((double) n));
             fflush(stdout);
         }
@@ -52,11 +52,14 @@ int main(){
     }
     cout << "Completed Verlet Procedure" << endl;
 
+    mat print_pos = MySolarsystem_RK4.getAllPos();
+    cout << print_pos << endl;
+
     // Fourth order Runge-Kutta:
     for(j=0; j<n-1; j++){
 
         // Print progress.
-        if (j % (n/100) == 0 && n > 1000) {
+        if (j % (n/100) == 0 && n > 999) {
             printf("Progress: %5.1f %% \r", 100*j/ ((double) n));
             fflush(stdout);
         }
