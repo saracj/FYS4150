@@ -4,27 +4,18 @@
 #include <iostream>
 #include <fstream>
 #include <armadillo>
-
 using namespace arma;
 using namespace std;
 
 solarsystem::solarsystem(double dt, string method_dt_T){
-
     filename = "../Project3/Data/Data_" + method_dt_T + ".dat";
-    filename_vel = "../Project3/Data/velocities_" + method_dt_T + ".dat";
+    filename2 = "../Project3/Data/Energy_" + method_dt_T + ".dat";
 
     cout << filename << endl;
-    cout << filename_vel << endl;
+    cout << filename2 << endl;
 
     this->outFile.open(filename.c_str(), ios::out);
-    this->outFile_vel.open(filename_vel.c_str(), ios::out);
-
-    if(getNumberOfObj() < 3){ // Only interested in this for the two-body problem
-        filename_E = "../Project3/Data/Energy_" + method_dt_T + ".dat";
-        cout << filename_E << endl;
-
-        this->outFile_E.open(filename_E.c_str(), ios::out);
-    }
+    this->outFile_E.open(filename2.c_str(), ios::out);
 
     this->dt = dt;
 }
@@ -33,15 +24,13 @@ void solarsystem::AddObject(celestialbodies *newobject){
     objects.push_back(newobject);
 }
 
-
 // Gravitational force working on one object by the other objects
 mat solarsystem::getForces(){
     G = 4*M_PI*M_PI; // Gravitational constant [Au^3 / yr^2 M_sun]
     F_g = zeros<mat>(getNumberOfObj(), 2);
-
     for(int i=0; i < getNumberOfObj(); i++){
-        if(objects[i]->getID() == "Sun"){ continue;} // Keep Sun fixed
 
+        if(objects[i]->getID() == "Sun"){ continue;} // Keep Sun fixed
         for(int k=0; k < getNumberOfObj(); k++) {
 
             if(objects[k]->getID() == objects[i]->getID()){ continue; }
@@ -50,7 +39,7 @@ mat solarsystem::getForces(){
             m = objects[i]->getM(); // cout << m << endl;
             M = objects[k]->getM(); // cout << M << endl;
 
-            fg =  G*M*m*R/ pow(norm(R), 3);
+            fg = G*M*m*R/ pow(norm(R), 3);
             F_g.row(i) += fg.t();
         }
     }
@@ -63,6 +52,7 @@ mat solarsystem::acceleration(){
     F = getForces();
     // cout << F << endl;
     accel = zeros<mat>(getNumberOfObj(), 2);
+
     for(int i=0; i < getNumberOfObj(); i++){
         accel.row(i) = F.row(i)/objects[i]->getM();
     }
@@ -79,9 +69,9 @@ void solarsystem::verlet(int i){
         // Saves the positions of all the objects in the
         // system in a nx2 matrix, where n is the number of
         // objects
+
         all_vel.row(j) = objects[j]->getVel().t();
         all_pos.row(j) = objects[j]->getPos().t();
-
     }
 
     setAllVelocities(all_vel);
@@ -89,18 +79,17 @@ void solarsystem::verlet(int i){
 
     verlet_pos = getAllPos();
     if(i == 0){
+
         verlet_next_pos = verlet_pos + getAllVel()*dt + (1./2)*acceleration()*dt*dt;
         previous_pos = verlet_pos;
         setAllPositions(verlet_next_pos);
     }
     else{
+
         verlet_next_pos = 2*verlet_pos + dt*dt*acceleration() - previous_pos;
         previous_pos = verlet_pos;
         setAllPositions(verlet_next_pos);
     }
-    // Velocities:
-    verlet_next_vel = (verlet_next_pos - previous_pos)/(2.*dt);
-    setAllVelocities(verlet_next_vel);
 
     if(getNumberOfObj() < 3){ // Only interested in this for the two-body problem
         potential_energy = potential_E();
@@ -122,6 +111,7 @@ void solarsystem::RK4(){
         // Saves the positions of all the objects in the
         // system in a nx2 matrix, where n is the number of
         // objects
+
         all_vel.row(i) = objects[i]->getVel().t();
         all_pos.row(i) = objects[i]->getPos().t();
     }
@@ -158,8 +148,8 @@ void solarsystem::RK4(){
 
     RK4_next_vel = RK4_vel + (dt/6.)*(ak1 + 2*ak2 + 2*ak3 + ak4);
     RK4_next_pos = RK4_pos + (dt/6.)*(vk1 + 2*vk2 + 2*vk3 + vk4);
-    // cout << "Change in position: " << endl <<(dt/6.)*(vk1 + 2*vk2 + 2*vk3 + vk4) << endl;
 
+    // cout << "Change in position: " << endl <<(dt/6.)*(vk1 + 2*vk2 + 2*vk3 + vk4) << endl;
     setAllVelocities(RK4_next_vel);
     setAllPositions(RK4_next_pos);
 
@@ -173,7 +163,50 @@ void solarsystem::RK4(){
 }
 
 
+vec solarsystem::potential_E(){
+    potential = zeros<vec>(getNumberOfObj());
 
+    G = 4*M_PI*M_PI; // Gravitational constant [Au^3 / yr^2 M_sun]
+    for(int i = 0; i < getNumberOfObj(); i++){
+        for(int k=0; k < getNumberOfObj(); k++){
+            if(objects[k]->getID() == objects[i]->getID()){ continue; }
+
+            potential(i) = -G * objects[i]->getM() * objects[k]->getM() / norm(objects[i]->getDist(*objects[k]));
+        }
+    }
+    return potential;
+}
+
+
+vec solarsystem::kinetic_E(){
+    kinetic = zeros<vec>(getNumberOfObj());
+    vel_E = getAllVel();
+
+    for(int i = 0; i < getNumberOfObj(); i++){
+        v_kin  = norm(vel_E.row(i));
+
+        kinetic(i) = (1./2)* objects[i]->getM() *v_kin*v_kin;
+    }
+    return kinetic;
+}
+
+
+vec solarsystem::ang_momentum(){
+    ang_mom = zeros<vec>(getNumberOfObj());
+    vel_ang1 = getAllVel();
+
+    for(int i = 0; i < getNumberOfObj(); i++){
+        v_ang = norm(vel_ang1.row(i));
+
+        for(int k=0; k < getNumberOfObj(); k++){
+            if(objects[k]->getID() == objects[i]->getID()){ continue; }
+
+            if(getNumberOfObj() < 3){ // L = mv x r
+                ang_mom(i) = norm(objects[i]->getDist(*objects[k])) * objects[i]->getM() * v_ang;}
+        }
+    }
+    return ang_mom;
+}
 
 // Set the positions of all objects in system
 void solarsystem::setAllPositions(mat newPositions){
@@ -201,77 +234,24 @@ void solarsystem::setAllVelocities(mat newVelocities){
 }
 
 
-vec solarsystem::potential_E(){
-    potential = zeros<vec>(getNumberOfObj());
-
-    G = 4*M_PI*M_PI; // Gravitational constant [Au^3 / yr^2 M_sun]
-    for(int i = 0; i < getNumberOfObj(); i++){
-
-        for(int k=0; k < getNumberOfObj(); k++){
-            if(objects[k]->getID() == objects[i]->getID()){ continue; }
-
-            r = norm(objects[i]->getDist(*objects[k]));
-            M = objects[k]->getM();
-
-            potential(i) = -G*m*M/r;
-        }
-    }
-    return potential;
-}
-
-
-vec solarsystem::kinetic_E(){
-    kinetic = zeros<vec>(getNumberOfObj());
-    vel_E = getAllVel();
-
-    for(int i = 0; i < getNumberOfObj(); i++){
-        v = norm(vel_E.row(i)); m = objects[i]->getM();
-
-        kinetic(i) = (1./2)*m*v*v;
-    }
-    return kinetic;
-}
-
-
-vec solarsystem::ang_momentum(){
-    ang_mom = zeros<vec>(getNumberOfObj());
-    vel_E = getAllVel();
-
-    for(int i = 0; i < getNumberOfObj(); i++){
-        m = objects[i]->getM();
-        v = norm(vel_E.row(i));
-
-        for(int k=0; k < getNumberOfObj(); k++){
-            if(objects[k]->getID() == objects[i]->getID()){ continue; }
-
-            r = norm(objects[i]->getDist(*objects[k]));
-            if(getNumberOfObj() <= 2){
-                //cout << "Angular momentum calculations made for stationary Sun. Disregard if Sun is not kept stationary" << endl;
-                ang_mom(i) = r*m*v;}
-        }
-    }
-    return ang_mom;
-}
-
-
 mat solarsystem::getAllPos(){ return all_positions; }
 mat solarsystem::getAllVel(){ return all_velocities; }
 int solarsystem::getNumberOfObj(){ return objects.size(); }
 
 
+// Writes to file
 void solarsystem::dumpToFile() {
 
     for (int i = 0; i < getNumberOfObj(); i++) {
         for (int j = 0; j < 2; j++) {
+
             this->outFile << objects[i]->getPos()[j] << " ";
-            this->outFile_vel << objects[i]->getVel()[j] << " ";
         }
         if(getNumberOfObj() < 3){ // Only interested in this for the two-body problem
+
             this->outFile_E << potential_energy(i) << " " << kinetic_energy(i) << " " << angular_momentum(i) << " ";
-        }
+            }
     }
     this->outFile << endl;
-    this->outFile_vel << endl;
     this->outFile_E << endl;
 }
-

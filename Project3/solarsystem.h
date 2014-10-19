@@ -9,41 +9,35 @@
 class solarsystem{
 
 private:
-    double dt, length, m, M, G;
-    double v, r, x;
-    vec fg, R;
-    mat F_g, F, potential, kinetic, ang_mom, vel_E;
-    mat accel, all_pos, all_vel;
+    double dt, length, m, M, G, v_kin, v_ang;
+    vec fg, R, potential, kinetic, potential_energy, kinetic_energy, angular_momentum;
+    mat F_g, F, ang_mom, vel_E, vel_ang1;
+    mat accel, all_pos, all_vel, all_positions, all_velocities;
     mat ak1, vk1, ak2, vk2, ak3, vk3, ak4, vk4;
-    vec potential_energy, kinetic_energy, angular_momentum;
 
-    mat all_accel, all_positions, all_velocities;
     mat RK4_pos, RK4_vel, RK4_next_pos, RK4_next_vel;
 
     mat verlet_next_pos, verlet_next_vel, verlet_pos, verlet_vel, verlet_next, previous_pos;
 
     vec i_vel, i_pos;
 
+    vec potential_E(), kinetic_E(), ang_momentum();
+
     string filename;
-    string filename_vel;
-    string filename_E;
+    string filename2;
     std::ofstream outFile;
-    std::ofstream outFile_vel;
     std::ofstream outFile_E;
 
 public:
     solarsystem(double time_step, string method_dt_endTime);
-    ~solarsystem() {this->outFile.close(); this->outFile_vel.close(); this->outFile_E.close();}
+    ~solarsystem() {this->outFile.close(); this->outFile_E.close();}// this->outFile_vel.close();
 
-    vec position;
-    vec velocity;
     vector<celestialbodies*> objects;
 
     mat getForces();
     mat acceleration();
-    void RK4();
     void verlet(int i);
-    vec potential_E(), kinetic_E(), ang_momentum();
+    void RK4();
 
     void AddObject(celestialbodies *);
     void setAllPositions(mat), setAllVelocities(mat);
