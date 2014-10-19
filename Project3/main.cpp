@@ -10,13 +10,13 @@ using namespace arma;
 int main(){
 
     int j;
-    int n = 100000; // number of steps
+    int n = 10000; // number of steps
 
     double r = 1.; // Distance from earth to sun [AU]
     double G = 4*M_PI*M_PI; // Gravitational constant [Au^3 yr^-2 M_sun^-1]
     double T = 5.; // end time of simulation [years]
     double dt = T/n; // time step, [years]
-    double vx = sqrt(G); // v^2 * r = G*M_sun -- v = sqrt(G*M_sun/r)
+    double vx = 8.9; //sqrt(G);// v^2 * r = G*M_sun -- v = sqrt(G*M_sun/r)
     double vy = 0;
 
     vec pos_earth(2), vel_earth(2), pos_sun(2), vel_sun(2);
@@ -27,12 +27,13 @@ int main(){
 
     string dt_string = static_cast<ostringstream*>(&(ostringstream() << dt) )->str();
     string time_string = static_cast<ostringstream*>(&(ostringstream() << T) )->str();
+    string string_v = static_cast<ostringstream*>(&(ostringstream() << vx) )->str();
+
     celestialbodies sun("Sun", 1., pos_sun, vel_sun);
     celestialbodies earth("Earth", 3e-6, pos_earth, vel_earth);
 
-
-    solarsystem MySolarsystem_verlet(dt, "verlet_"+time_string+"yr_"+dt_string);
-    solarsystem MySolarsystem_RK4(dt, "RK4_"+time_string+"yr_"+dt_string);
+    solarsystem MySolarsystem_verlet(dt, "verlet_"+string_v+"_"+time_string+"yr_"+dt_string);
+    solarsystem MySolarsystem_RK4(dt, "RK4_"+string_v+"_"+time_string+"yr_"+dt_string);
 
     MySolarsystem_verlet.AddObject(&sun);
     MySolarsystem_verlet.AddObject(&earth);
@@ -40,7 +41,7 @@ int main(){
     MySolarsystem_RK4.AddObject(&sun);
     MySolarsystem_RK4.AddObject(&earth);
 
-    for(j=0; j<n-1; j++){
+    for(j=0; j<n; j++){
 
         // Print progress.
         if (j % (n/100) == 0 && n > 999) {
@@ -52,11 +53,8 @@ int main(){
     }
     cout << "Completed Verlet Procedure" << endl;
 
-    mat print_pos = MySolarsystem_RK4.getAllPos();
-    cout << print_pos << endl;
-
     // Fourth order Runge-Kutta:
-    for(j=0; j<n-1; j++){
+    for(j=0; j<n; j++){
 
         // Print progress.
         if (j % (n/100) == 0 && n > 999) {
