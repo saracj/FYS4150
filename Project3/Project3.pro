@@ -10,3 +10,5 @@ HEADERS += \
     solarsystem.h \
     celestialbodies.h
 
+
+LIBS += -larmadillo -lblas -llapack
