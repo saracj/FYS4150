@@ -7,15 +7,32 @@
 using namespace arma;
 using namespace std;
 
-solarsystem::solarsystem(double dt, string method_dt_T){
+solarsystem::solarsystem(double dt, string method_dt_T, string method){
     filename = "../Project3/Data/Data_" + method_dt_T + ".dat";
     filename2 = "../Project3/Data/Energy_" + method_dt_T + ".dat";
+    filename_sun = "../Project3/Data/sun_"+method+".dat";
+    filename_merc = "../Project3/Data/merc_"+method+".dat";
+    filename_ven = "../Project3/Data/ven_"+method+".dat";
+    filename_earth = "../Project3/Data/earth_"+method+".dat";
+    filename_mars = "../Project3/Data/mars_"+method+".dat";
+    filename_jup = "../Project3/Data/jup_"+method+".dat";
+    filename_sat = "../Project3/Data/sat_"+method+".dat";
+    filename_ur = "../Project3/Data/ur_"+method+".dat";
+    filename_nep = "../Project3/Data/nep_"+method+".dat";
 
     cout << filename << endl;
     cout << filename2 << endl;
 
     this->outFile.open(filename.c_str(), ios::out);
-    this->outFile_E.open(filename2.c_str(), ios::out);
+    this->outFile_0.open(filename_sun.c_str(), ios::out);
+    this->outFile_1.open(filename_merc.c_str(), ios::out);
+    this->outFile_2.open(filename_ven.c_str(), ios::out);
+    this->outFile_3.open(filename_earth.c_str(), ios::out);
+    this->outFile_4.open(filename_mars.c_str(), ios::out);
+    this->outFile_5.open(filename_jup.c_str(), ios::out);
+    this->outFile_6.open(filename_sat.c_str(), ios::out);
+    this->outFile_7.open(filename_ur.c_str(), ios::out);
+    this->outFile_8.open(filename_nep.c_str(), ios::out);
 
     this->dt = dt;
 }
@@ -246,6 +263,15 @@ void solarsystem::dumpToFile() {
         for (int j = 0; j < 2; j++) {
 
             this->outFile << objects[i]->getPos()[j] << " ";
+            if(objects[i]->getID() == "Sun"){ this->outFile_0 << objects[i]->getPos()[j] << " ";}
+            if(objects[i]->getID() == "Mercury"){ this->outFile_1 << objects[i]->getPos()[j] << " ";}
+            if(objects[i]->getID() == "Venus"){ this->outFile_2 << objects[i]->getPos()[j] << " ";}
+            if(objects[i]->getID() == "Earth"){ this->outFile_3 << objects[i]->getPos()[j] << " ";}
+            if(objects[i]->getID() == "Mars"){ this->outFile_4 << objects[i]->getPos()[j] << " ";}
+            if(objects[i]->getID() == "Jupiter"){ this->outFile_5 << objects[i]->getPos()[j] << " ";}
+            if(objects[i]->getID() == "Saturn"){ this->outFile_6 << objects[i]->getPos()[j] << " ";}
+            if(objects[i]->getID() == "Uranus"){ this->outFile_7 << objects[i]->getPos()[j] << " ";}
+            if(objects[i]->getID() == "Neptune"){ this->outFile_8 << objects[i]->getPos()[j] << " ";}
         }
         if(getNumberOfObj() < 3){ // Only interested in this for the two-body problem
 
@@ -254,4 +280,13 @@ void solarsystem::dumpToFile() {
     }
     this->outFile << endl;
     this->outFile_E << endl;
+    this->outFile_0 << endl;
+    this->outFile_1 << endl;
+    this->outFile_2 << endl;
+    this->outFile_3 << endl;
+    this->outFile_4 << endl;
+    this->outFile_5 << endl;
+    this->outFile_6 << endl;
+    this->outFile_7 << endl;
+    this->outFile_8 << endl;
 }

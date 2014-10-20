@@ -10,11 +10,11 @@ using namespace arma;
 int main(){
 
     int j;
-    int n = 100000; // number of steps
+    int n = 1000000; // number of steps
 
     double r = 1.; // Distance from earth to sun [AU]
     double G = 4*M_PI*M_PI; // Gravitational constant [Au^3 yr^-2 M_sun^-1]
-    double T = 50.; // end time of simulation [years]
+    double T = 200.; // end time of simulation [years]
     double dt = T/n; // time step, [years]
     double vx = 6.28616;// v^2 * r = G*M_sun -- v = sqrt(G*M_sun/r)
     double vy = 0;
@@ -49,8 +49,8 @@ int main(){
     celestialbodies uranus("Uranus", 4.36430044e-5, pos_ur, vel_ur);
     celestialbodies neptune("Neptune", 5.14855965e-5, pos_nep, vel_nep);
 
-    solarsystem MySolarsystem_verlet(dt, "solarsystem_verlet_"+time_string+"yr_"+dt_string);
-    solarsystem MySolarsystem_RK4(dt, "solarsystem_RK4_"+time_string+"yr_"+dt_string);
+    solarsystem MySolarsystem_verlet(dt, "solarsystem_verlet_"+time_string+"yr_"+dt_string, "verlet");
+    solarsystem MySolarsystem_RK4(dt, "solarsystem_RK4_"+time_string+"yr_"+dt_string, "RK4");
 
     MySolarsystem_verlet.AddObject(&sun);
     MySolarsystem_verlet.AddObject(&mercury);

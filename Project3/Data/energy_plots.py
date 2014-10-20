@@ -57,23 +57,24 @@ run_time_R = string_split2[2]
 
 if len(string_split1[3].split('.')) < 3: # Filenames jump to "scientific" notation a for dt < 10^-4
   string_dt_V = string_split1[3].split('.')[0]
-  pot_title_sun = r'Potential E of Sun for RK4 and Verlet, $\Delta$t = '+string_dt_V
-  pot_title_earth = r'Potential E of earth for RK4 and Verlet, $\Delta$t = '+string_dt_V
-  kin_title_sun = r'Kinetic E of Sun for RK4 and Verlet, $\Delta$t = '+string_dt_V
-  kin_title_earth = r'Kinetic E of earth for RK4 and Verlet, $\Delta$t = '+string_dt_V
-  ang_title_sun = r'Angular momentum of Sun for RK4 and Verlet, $\Delta$t = '+string_dt_V
-  ang_title_earth = r'Angular momentum of earth for RK4 and Verlet, $\Delta$t = '+string_dt_V
+  pot_title_sun = r'Potential E, $U/U_{max}$, of Sun for RK4 and Verlet, $\Delta$t = '+string_dt_V
+  pot_title_earth = r'Potential E, $U/U_{max}$, of Earth for RK4 and Verlet, $\Delta$t = '+string_dt_V
+  kin_title_sun = r'Kinetic E, $K/K_{max}$, of Sun for RK4 and Verlet, $\Delta$t = '+string_dt_V
+  kin_title_earth = r'Kinetic E, $K/K_{max}$, of Earth for RK4 and Verlet, $\Delta$t = '+string_dt_V
+  ang_title_sun = r'Angular momentum, $\left| \vec{L} \right| / \left| \vec{L} \right|_{max}$, of Sun for RK4 and Verlet, $\Delta$t = '+string_dt_V
+  ang_title_earth = r'Angular momentum, $\left| \vec{L} \right| / \left| \vec{L} \right|_{max}$, of Earth for RK4 and Verlet, $\Delta$t = '+string_dt_V
 if len(string_split2[3].split('.')) < 3:
   string_dt_R = string_split2[3].split('.')[0] 
 else:
   string_dt_V = string_split1[3].split('.')[1]
   string_dt_R = string_split2[3].split('.')[1]
-  pot_title_sun = r'Potential E of Sun for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
-  pot_title_earth = r'Potential E of Earth for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
-  kin_title_sun = r'Kinetic E of Sun for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
-  kin_title_earth = r'Kinetic E of Earth for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
-  ang_title_sun = r'Angular momentum of Sun for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
-  ang_title_earth = r'Angular momentum of Earth for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
+  pot_title_sun = r'Potential E, $U/U_{max}$, of Sun for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
+  pot_title_earth = r'Potential energy, $U/U_{max}$, of Earth for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
+  E_title_earth = r'Energy plot of Earth for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
+  kin_title_sun = r'Kinetic E, $K/K_{max}$, of Sun for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
+  kin_title_earth = r'Kinetic E, $K/K_{max}$, of Earth for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
+  ang_title_sun = r'Angular momentum, $\left| \vec{L} \right| / \left| \vec{L} \right|_{max}$, of Sun for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
+  ang_title_earth = r'Angular momentum, $\left| \vec{L} \right| / \left| \vec{L} \right|_{max}$, of Earth for RK4 and Verlet, $\Delta$t = 0.'+string_dt_V
   
   
 # Verlet:
@@ -90,60 +91,60 @@ T_R = int(string_split2[2].split('y')[0])
 tV = np.linspace(0, T_V, len(sun_potV))
 tR = np.linspace(0, T_R, len(sun_potR))
 
+"""
+font = {'family' : 'normal',
+        'weight' : 'bold',
+        'size'   : 12}
+
+plt.rc('font', **font)
+"""
+"""
 plt.figure(1)
-plt.plot(tV, sun_potV, '-b')
-plt.plot(tR, sun_potR, '-g')
+plt.plot(tV, sun_potV/max(sun_potV), '-b')
+plt.plot(tR, sun_potR/max(sun_potR), '-g')
+#plt.ylim([-0.001, 0.007])
 plt.xlabel(r'time t [years]')
 plt.ylabel(r'Potential Energy $ U = \frac{-G M_{\odot} m_{\mathrm{earth}}}{r}$ [$\mathrm{AU}^2 M_{\odot}^2 \mathrm{yr}^{-2}$]')
 plt.title(pot_title_sun)
+plt.legend(['Verlet','RK4'])
 plt.savefig('sun_pot_dt'+string_dt_V+'.png')
 plt.show()
 
+/max(earth_potV)
+/max(earth_potR)
+/max(earth_kinV)
+/max(earth_kinR)
+
 plt.figure(2)
-plt.plot(tV, earth_potV, '-b')
-plt.plot(tR, earth_potR, '-g')
+plt.plot(tV, earth_angV/max(earth_angV), '-b')
+plt.plot(tR, earth_angR/max(earth_angR), '-g')
+#plt.ylim([187*10**(-7), 190*10**(-7)])
 plt.xlabel(r'time t [years]')
-plt.ylabel(r'Potential Energy $ U = \frac{-G M_{\odot} m_{\mathrm{earth}}}{r}$ [$\mathrm{AU}^2 M_{\odot}^2 \mathrm{yr}^{-2}$]')
-plt.title(pot_title_earth)
-plt.savefig('earth_pot_dt'+string_dt_V+'.png')
-plt.show()
-
-""" Pointless for Sun
-plt.figure(3)
-plt.plot(tV, sun_kinV, '-b')
-plt.plot(tR, sun_kinR, '-g')
-plt.xlabel(r'time t [years]')
-plt.ylabel(r'Kinetic Energy $K = \frac{1}{2} m v^2$ [$m_\odot \mathrm{AU}^2 \mathrm{yr}^{-2} $]')
-plt.title(kin_title_sun)
-plt.savefig('sun_kin_dt'+string_dt_V+'.png')
-plt.show()
-"""
-plt.figure(4)
-plt.plot(tV, earth_kinV, '-b')
-plt.plot(tR, earth_kinR, '-g')
-plt.xlabel(r'time t [years]')
-plt.ylabel(r'Kinetic Energy $K = \frac{1}{2} m v^2$ [$m_\odot \mathrm{AU}^2 \mathrm{yr}^{-2} $]')
-plt.title(kin_title_earth)
-plt.savefig('earth_kin_dt'+string_dt_V+'.png')
-plt.show()
-
-""" Pointless for Sun
-plt.figure(5)
-plt.plot(tV, sun_angV, '-b')
-plt.plot(tR, sun_angR, '-g')
-plt.xlabel(r'time t [years]')
-plt.ylabel(r'Angular Momentum L = m \cross \vec v \cross \vec r')
-plt.title(ang_title_sun)
-plt.savefig('sun_ang_dt'+string_dt_V+'.png')
-plt.show()
-"""
-
-plt.figure(6)
-plt.plot(tV, earth_angV, '-b')
-plt.plot(tR, earth_angR, '-g')
-plt.xlabel(r'time t [years]')
-plt.ylabel(r'Angular Momentum L = m \cross \vec v \cross \vec r')
+plt.ylabel(r'Angular Momentum $\vec{L} = m \vec{v} \times \vec{r}$')
 plt.title(ang_title_earth)
+plt.legend(['Verlet','RK4'])
 plt.savefig('earth_ang_dt'+string_dt_V+'.png')
 plt.show()
+"""
 
+plt.figure(3)
+plt.subplot(211)
+plt.plot(tV, earth_potV, '-b')
+plt.plot(tR, earth_potR, '-g')
+#plt.ylim([0.995, 1.08])
+plt.ylabel(r'$ U = \frac{-G M_{\odot} m_{\mathrm{earth}}}{r}$', fontsize = 25)
+plt.legend(['Verlet','RK4'])
+
+plt.title(E_title_earth, y = 1.02, fontsize=20)
+
+plt.subplot(212)
+plt.plot(tV, earth_kinV, '-b')
+plt.plot(tR, earth_kinR, '-g')
+#plt.ylim([ 0.92, 1.008])
+plt.xlabel(r'time t [years]')
+plt.ylabel(r'$K = \frac{1}{2} m v^2$', fontsize = 25)
+plt.legend(['Verlet','RK4'])
+
+
+#plt.savefig('earth_energy_dt'+string_dt_V+'.png')
+plt.show()
