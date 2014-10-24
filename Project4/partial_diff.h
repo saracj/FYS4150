@@ -8,10 +8,13 @@ private:
     void CRANK_NICOLSON();
     void TRIDIAG(mat B);
 
-    vec u;
+    double dx, dt, d, T, D; // Constructor
+    int nx, nt; // Constructor
+
+    double C; // EXPLICIT
 
 public:
-    partial_diff();
+    partial_diff(double position_step, double end_time, double end_position, double D);
 
 
 };
