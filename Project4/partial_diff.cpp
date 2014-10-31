@@ -1,50 +1,100 @@
-#include "partial_diff.h"
 #include <armadillo>
+#include "partial_diff.h"
 
 using namespace arma;
 using namespace std;
 
-partial_diff::partial_diff(double position_step, double end_time, double end_position, double D){
-    this->dx = position_step; // Position step length
-    this->dt = 1/(2*dx^2); // Demanded by stability: dt/dx^2 <= 1/2
+partial_diff::partial_diff(double position_step, double time_step, double end_time, double end_position, int position_steps, int time_steps, double D){
+    this->dx = position_step;   // Position step length
+    this->dt = time_step;       // Time step length
     this->T = end_time;
     this->d = end_position;
-    this->nt = T/dt; // Number of time steps
-    this->nx = d/dx; // Number of position steps
+    this->nx = position_steps;
+    this->nt = time_steps;
     this->D = D; // Diffusion coeffictient
 }
 
 
 // Solves time evolution of the diffusion equation
 // using the Explicit scheme
-void partial_diff::EXPLICIT(mat u){
-    C = D*dt/dx^2;
+mat partial_diff::EXPLICIT(mat u){
+    alpha = D*dt/(dx*dx);
 
-    for(int i=1; i<nx; i++){
-        for(int j=1; j<nt; j++)
+    A = zeros<mat>(nx-2,nx-2);
+    C = zeros<mat>(nx-2,nx-2);
 
-            u(i,j+1) = C*( u(i+1,j) - u(i,j) + u(i-1, j));
+
+    C.diag() += 2; C.diag(-1) += -1; C.diag(1) += -1;
+    A = eye<mat>(nx-2,nx-2) - alpha*C;
+
+    for(int j=0; j<nt-2; j++){
+        u.row(j+1) = (A*u.row(j).t()).t();
     }
 
-    setU(u);
+    return u;
 }
 
 
-// Solves time evolution using the Implicit scheme
-void partial_diff::IMPLICIT(){
+mat partial_diff::IMPLICIT(mat u){
+    // Solves the diffusion equation using the implicit method
+    this->alpha = dt/(dx*dx);
 
+    A = zeros<mat>(nx-2,nx-2);
+
+    A.diag(-1) += -alpha;
+    A.diag()   += 1 + 2*alpha;
+    A.diag(1)  += -alpha;
+
+    for(int j=1; j<nx-1; j++){
+        U = TRIDIAG(u.row(j-1).t(), A);
+        u.row(j) = U.t();
+    }
+    return u;
 }
 
 
 // Solves time evolution using the Crank-Nicolson scheme
-void partial_diff::CRANK_NICOLSON(){
+mat partial_diff::CRANK_NICOLSON(mat u){
 
 }
 
-// Solves the position for a tridagonal matrix
-void partial_diff::TRIDIAG(mat B){
+vec partial_diff::TRIDIAG(vec V_prev, mat A){
+    // Solves the position for a tridagonal matrix
+    F = zeros<vec>(nx-2); B = zeros<vec>(nx-2); V = zeros<vec>(nx-2);
+    a = zeros<vec>(nx-2); b = zeros<vec>(nx-2); c = zeros<vec>(nx-2);
 
+
+    for(int i=0; i<nx-3; i++){
+        a(i) = A.diag(-1)(i);
+        c(i) = A.diag(1)(i);
+    }
+
+
+    b = A.diag();
+    a(nx-3) = A.diag(-1)(0);
+    c(nx-3) = A.diag(1)(0);
+
+
+    // Calculates vecotrs containing the factors f' and b'
+    F(0) = V_prev(0);
+    B(0) = b(0);
+
+
+    for(int i=1; i<nx-2; i++){
+        factor = (a(i)*B(i-1));
+        B(i) = b(i) - factor*c(i-1);
+        F(i) = V_prev(i) - factor*F(i-1);
+    }
+
+
+    V(nx-3) = F(nx-3)/B(nx-3);
+    for(int i=nx-4; i>=0; i--){
+        V(i) = (F(i) - c(i)*V(i+1))/B(i);
+    }
+
+
+    return V;
 }
 
 void partial_diff::setU(mat new_u){ this->u = new_u; }
-void partial_diff::getU(){ return this->u; }
+mat partial_diff::getU(){ return this->u; }
