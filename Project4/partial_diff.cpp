@@ -27,7 +27,7 @@ mat partial_diff::EXPLICIT(mat u){
     C.diag() += 2; C.diag(-1) += -1; C.diag(1) += -1;
     A = eye<mat>(nx-2,nx-2) - alpha*C;
 
-    for(int j=0; j<nt-2; j++){
+    for(int j=0; j<nt-1; j++){
         u.row(j+1) = (A*u.row(j).t()).t();
     }
 
@@ -45,9 +45,10 @@ mat partial_diff::IMPLICIT(mat u){
     A.diag()   += 1 + 2*alpha;
     A.diag(1)  += -alpha;
 
-    for(int j=1; j<nx-1; j++){
-        U = TRIDIAG(u.row(j-1).t(), A);
-        u.row(j) = U.t();
+    for(int j=0; j<nt-1; j++){
+        U = solve(A, u.row(j).t()); // Temporary (?)
+        //U = TRIDIAG(u.row(j).t(), A); This one doesn't work, need to fix
+        u.row(j+1) = U.t();
     }
     return u;
 }
@@ -63,12 +64,10 @@ vec partial_diff::TRIDIAG(vec V_prev, mat A){
     F = zeros<vec>(nx-2); B = zeros<vec>(nx-2); V = zeros<vec>(nx-2);
     a = zeros<vec>(nx-2); b = zeros<vec>(nx-2); c = zeros<vec>(nx-2);
 
-
     for(int i=0; i<nx-3; i++){
         a(i) = A.diag(-1)(i);
         c(i) = A.diag(1)(i);
     }
-
 
     b = A.diag();
     a(nx-3) = A.diag(-1)(0);

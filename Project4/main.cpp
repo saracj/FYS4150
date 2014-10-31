@@ -53,6 +53,7 @@ int main(){
     //v_CN    =  CN_solution.getU(); // Crank-Nicolson method
 
 
+
     // Adding boundary conditions:
     V_expl.col(0)    = zeros<vec>(nt);
     V_expl.col(nx-1) = zeros<vec>(nt);
@@ -62,6 +63,8 @@ int main(){
     V_CN.col(0)      = zeros<vec>(nt);
     V_CN.col(nx-1)   = zeros<vec>(nt);
     */
+
+
     for(int i=0; i<nx-2; i++){
         V_expl.col(i+1) = v_expl.col(i);
         V_impl.col(i+1) = v_impl.col(i);
