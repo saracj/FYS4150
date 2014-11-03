@@ -13,17 +13,18 @@ private:
 
     double alpha;
     int nx, nt;
-    arma::mat u, A, C;
+    arma::mat u, A, A1, A2, C;
+    arma::vec u_temp, U, U_test;
 
     // Tridiag function:
     double factor;
-    arma::vec F, B, f, b, c, a, V, V_prev, U;
+    arma::vec F, B, f, b, c, a, V, V_prev;
 
 
 public:
     partial_diff(double position_step, double time_step, double end_time, double end_position, int position_steps, int time_steps, double D);
     arma::mat IMPLICIT(arma::mat u);
-    arma::mat CRANK_NICOLSON(arma::mat u);
+    arma::vec CRANK_NICOLSON(arma::mat u);
     arma::mat EXPLICIT(arma::mat u);
     arma::mat getU();
 

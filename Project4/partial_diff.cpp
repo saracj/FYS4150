@@ -12,19 +12,20 @@ partial_diff::partial_diff(double position_step, double time_step, double end_ti
     this->nx = position_steps;
     this->nt = time_steps;
     this->D = D; // Diffusion coeffictient
+    this->alpha = this->D*dt/(dx*dx);
+
+    A = zeros<mat>(nx-2,nx-2);
+    C = zeros<mat>(nx-2,nx-2);
+
+    C.diag(-1) += -1; C.diag() += 2;  C.diag(1) += -1;
+
 }
 
 
 // Solves time evolution of the diffusion equation
 // using the Explicit scheme
 mat partial_diff::EXPLICIT(mat u){
-    alpha = D*dt/(dx*dx);
 
-    A = zeros<mat>(nx-2,nx-2);
-    C = zeros<mat>(nx-2,nx-2);
-
-
-    C.diag() += 2; C.diag(-1) += -1; C.diag(1) += -1;
     A = eye<mat>(nx-2,nx-2) - alpha*C;
 
     for(int j=0; j<nt-1; j++){
@@ -37,30 +38,40 @@ mat partial_diff::EXPLICIT(mat u){
 
 mat partial_diff::IMPLICIT(mat u){
     // Solves the diffusion equation using the implicit method
-    this->alpha = dt/(dx*dx);
 
-    A = zeros<mat>(nx-2,nx-2);
-
-    A.diag(-1) += -alpha;
-    A.diag()   += 1 + 2*alpha;
-    A.diag(1)  += -alpha;
+    A = eye<mat>(nx-2,nx-2) + alpha*C;
 
     for(int j=0; j<nt-1; j++){
         U = solve(A, u.row(j).t()); // Temporary (?)
-        //U = TRIDIAG(u.row(j).t(), A); This one doesn't work, need to fix
+        //U = TRIDIAG(u.row(j).t(), A); // This one doesn't work, need to fix
         u.row(j+1) = U.t();
     }
     return u;
 }
 
 
-// Solves time evolution using the Crank-Nicolson scheme
-mat partial_diff::CRANK_NICOLSON(mat u){
+vec partial_diff::CRANK_NICOLSON(mat u){
+    // Solves time evolution using the Crank-Nicolson scheme
 
+    A1 = 2*eye<mat>(nx-2,nx-2) - alpha*C;
+    A2 = 2*eye<mat>(nx-2,nx-2) + alpha*C;
+
+    for(int j=0; j<nt-1; j++){
+        u_temp = A1*u.row(j).t();  // Temporary vector
+        // V = TRIDIAG(v_temp, A2);
+        U  = solve(A2, u_temp);
+        u.row(j+1) = U.t();
+    }
+    cout << size(u) << endl;
+    return u;
 }
 
+
+
+
+
 vec partial_diff::TRIDIAG(vec V_prev, mat A){
-    // Solves the position for a tridagonal matrix
+    // A tridiagonal matrix system A \vec{x} = B, where A and B are matrices
     F = zeros<vec>(nx-2); B = zeros<vec>(nx-2); V = zeros<vec>(nx-2);
     a = zeros<vec>(nx-2); b = zeros<vec>(nx-2); c = zeros<vec>(nx-2);
 
@@ -90,7 +101,6 @@ vec partial_diff::TRIDIAG(vec V_prev, mat A){
     for(int i=nx-4; i>=0; i--){
         V(i) = (F(i) - c(i)*V(i+1))/B(i);
     }
-
 
     return V;
 }
