@@ -13,12 +13,12 @@ private:
 
     double alpha;
     int nx, nt;
-    arma::mat u, A, A1, A2, C;
+    arma::mat u, A, A1, A2, B;
     arma::vec u_temp, U, U_test;
 
     // Tridiag function:
     double factor;
-    arma::vec F, B, f, b, c, a, V, V_prev;
+    arma::vec  f, b, c, a, v, btemp, temp, ftemp;
 
 
 public:

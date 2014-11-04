@@ -15,9 +15,9 @@ partial_diff::partial_diff(double position_step, double time_step, double end_ti
     this->alpha = this->D*dt/(dx*dx);
 
     A = zeros<mat>(nx-2,nx-2);
-    C = zeros<mat>(nx-2,nx-2);
+    B = zeros<mat>(nx-2,nx-2);
 
-    C.diag(-1) += -1; C.diag() += 2;  C.diag(1) += -1;
+    B.diag(-1) += -1; B.diag() += 2;  B.diag(1) += -1;
 
 }
 
@@ -26,7 +26,7 @@ partial_diff::partial_diff(double position_step, double time_step, double end_ti
 // using the Explicit scheme
 mat partial_diff::EXPLICIT(mat u){
 
-    A = eye<mat>(nx-2,nx-2) - alpha*C;
+    A = eye<mat>(nx-2,nx-2) - alpha*B;
 
     for(int j=0; j<nt-1; j++){
         u.row(j+1) = (A*u.row(j).t()).t();
@@ -39,11 +39,11 @@ mat partial_diff::EXPLICIT(mat u){
 mat partial_diff::IMPLICIT(mat u){
     // Solves the diffusion equation using the implicit method
 
-    A = eye<mat>(nx-2,nx-2) + alpha*C;
+    A = eye<mat>(nx-2,nx-2) + alpha*B;
 
     for(int j=0; j<nt-1; j++){
-        U = solve(A, u.row(j).t()); // Temporary (?)
-        //U = TRIDIAG(u.row(j).t(), A); // This one doesn't work, need to fix
+        //U = solve(A, u.row(j).t());
+        U = TRIDIAG(u.row(j).t(), A);
         u.row(j+1) = U.t();
     }
     return u;
@@ -53,56 +53,58 @@ mat partial_diff::IMPLICIT(mat u){
 mat partial_diff::CRANK_NICOLSON(mat u){
     // Solves time evolution using the Crank-Nicolson scheme
 
-    A1 = 2*eye<mat>(nx-2,nx-2) - alpha*C;
-    A2 = 2*eye<mat>(nx-2,nx-2) + alpha*C;
+    A1 = 2*eye<mat>(nx-2,nx-2) - alpha*B;
+    A2 = 2*eye<mat>(nx-2,nx-2) + alpha*B;
 
     for(int j=0; j<nt-1; j++){
         u_temp = A1*u.row(j).t();  // Temporary vector
-        // V = TRIDIAG(v_temp, A2);
-        U  = solve(A2, u_temp);
+        //U  = solve(A2, u_temp);
+        U = TRIDIAG(u_temp, A2);
         u.row(j+1) = U.t();
     }
-    cout << size(u) << endl;
     return u;
 }
 
 
 
+vec partial_diff::TRIDIAG(vec f, mat A){
+    // A tridiagonal matrix system A \vec{v} = \vec{f}, where A is a matrix
+    int n = nx-2;
+    v = zeros<vec>(n); ftemp = zeros<vec>(n); btemp = zeros<vec>(n);
+    a = zeros<vec>(n); b = zeros<vec>(n); c = zeros<vec>(n);
 
+    a(0) = 0;
+    c(n-1) = 0;
+    b = A.diag();
 
-vec partial_diff::TRIDIAG(vec V_prev, mat A){
-    // A tridiagonal matrix system A \vec{x} = B, where A and B are matrices
-    F = zeros<vec>(nx-2); B = zeros<vec>(nx-2); V = zeros<vec>(nx-2);
-    a = zeros<vec>(nx-2); b = zeros<vec>(nx-2); c = zeros<vec>(nx-2);
-
-    for(int i=0; i<nx-3; i++){
-        a(i) = A.diag(-1)(i);
+    cout << "hi" << endl;
+    for(int i=0; i<n-1; i++){
+        a(i+1) = A.diag(-1)(i);
         c(i) = A.diag(1)(i);
     }
 
-    b = A.diag();
-    a(nx-3) = A.diag(-1)(0);
-    c(nx-3) = A.diag(1)(0);
 
+    // Forward substitution:
 
-    // Calculates vecotrs containing the factors f' and b'
-    F(0) = V_prev(0);
-    B(0) = b(0);
+    btemp(0) = b(0);
+    ftemp(0) = f(0);
 
-
-    for(int i=1; i<nx-2; i++){
-        factor = (a(i)*B(i-1));
-        B(i) = b(i) - factor*c(i-1);
-        F(i) = V_prev(i) - factor*F(i-1);
+    for(int i=1; i<=n-1; i++){
+        factor = a(i)/btemp(i-1);
+        btemp(i) = b(i) - factor*c(i-1);
+        ftemp(i) = f(i) - factor*ftemp(i-1);
     }
 
 
-    V(nx-3) = F(nx-3)/B(nx-3);
-    for(int i=nx-4; i>=0; i--){
-        V(i) = (F(i) - c(i)*V(i+1))/B(i);
+    // Bacward substitution:
+
+    v(n-1) = ftemp(n-1)/btemp(n-1);
+
+    for(int i=n-2; i>=0; i--){
+        v(i) = (ftemp(i) - c(i)*v(i+1))/btemp(i);
     }
 
-    return V;
+    return v;
 }
 
 void partial_diff::setU(mat new_u){ this->u = new_u; }
