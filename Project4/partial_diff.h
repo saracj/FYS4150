@@ -24,7 +24,7 @@ private:
 public:
     partial_diff(double position_step, double time_step, double end_time, double end_position, int position_steps, int time_steps, double D);
     arma::mat IMPLICIT(arma::mat u);
-    arma::vec CRANK_NICOLSON(arma::mat u);
+    arma::mat CRANK_NICOLSON(arma::mat u);
     arma::mat EXPLICIT(arma::mat u);
     arma::mat getU();
 

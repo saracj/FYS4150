@@ -46,27 +46,28 @@ int main(){
     partial_diff implicit_solution(dx, dt, T, d, nx, nt, D);
     partial_diff CN_solution(dx, dt, T, d, nx, nt, D);
 
-    cout << size(v_CN) << endl;
 
     // Get the different solutions
     v_expl  =  explicit_solution.EXPLICIT(v); // Explicit method
     v_impl  =  implicit_solution.IMPLICIT(v); // Implicit method
     v_CN    =  CN_solution.CRANK_NICOLSON(v); // Crank-Nicolson method
+    cout << size(v_CN) << endl;
 
 
+    /*
     // Adding boundary conditions:
     V_expl.col(0)    = zeros<vec>(nt);
     V_expl.col(nx-1) = zeros<vec>(nt);
     V_impl.col(0)    = zeros<vec>(nt);
     V_impl.col(nx-1) = zeros<vec>(nt);
-    V_CN.col(0)      = zeros<vec>(nt);
-    V_CN.col(nx-1)   = zeros<vec>(nt);
-
+    //V_CN.col(0)      = zeros<vec>(nt);
+    //V_CN.col(nx-1)   = zeros<vec>(nt);
+    */
 
     for(int i=0; i<nx-2; i++){
         V_expl.col(i+1) = v_expl.col(i);
-        V_impl.col(i+1) = v_impl.col(i);
         cout << "hi" << endl;
+        V_impl.col(i+1) = v_impl.col(i);
         V_CN.col(i+1) = v_CN.col(i);
     }
 
@@ -92,9 +93,9 @@ int main(){
     u_analytic += Us;
 
     // Write the numerical and analytic solutions at two different times
-    WriteToFile("Explicit", x, Uexpl.row(10).t(), Uexpl.row(190).t(), t(10), t(190));
-    WriteToFile("Implicit", x, Uimpl.row(10).t(), Uimpl.row(190).t(), t(10), t(190));
-    WriteToFile("CN", x, UCN.row(10).t(), UCN.row(190).t(), t(10), t(190));
+    WriteToFile("Explicit", x, Uexpl.row(10).t(),      Uexpl.row(190).t(),      t(10), t(190));
+    WriteToFile("Implicit", x, Uimpl.row(10).t(),      Uimpl.row(190).t(),      t(10), t(190));
+    WriteToFile("CN",       x, UCN.row(10).t(),        UCN.row(190).t(),        t(10), t(190));
     WriteToFile("Analytic", x, u_analytic.row(10).t(), u_analytic.row(190).t(), t(10), t(190));
 
 

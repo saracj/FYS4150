@@ -50,7 +50,7 @@ mat partial_diff::IMPLICIT(mat u){
 }
 
 
-vec partial_diff::CRANK_NICOLSON(mat u){
+mat partial_diff::CRANK_NICOLSON(mat u){
     // Solves time evolution using the Crank-Nicolson scheme
 
     A1 = 2*eye<mat>(nx-2,nx-2) - alpha*C;
