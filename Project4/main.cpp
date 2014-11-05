@@ -9,6 +9,8 @@ using namespace arma;
 using namespace std;
 
 int main(){
+    void WriteToFile(string, vec, vec, vec, double, double);
+
     double  T  =  1.;
     double  d  =  1.;
     double  dx =  1./10;        // Position step.
@@ -33,9 +35,6 @@ int main(){
     mat UCN        =  zeros<mat>(nt, nx);
 
 
-    void WriteToFile(string, vec, vec, vec, double, double);
-
-
     // Initial conditions:
     for(int i=0; i<nx-2; i++){
         v.row(0)(i) =  x(i+1) - 1;
@@ -51,22 +50,9 @@ int main(){
     v_expl  =  explicit_solution.EXPLICIT(v); // Explicit method
     v_impl  =  implicit_solution.IMPLICIT(v); // Implicit method
     v_CN    =  CN_solution.CRANK_NICOLSON(v); // Crank-Nicolson method
-    cout << size(v_CN) << endl;
-
-
-    /*
-    // Adding boundary conditions:
-    V_expl.col(0)    = zeros<vec>(nt);
-    V_expl.col(nx-1) = zeros<vec>(nt);
-    V_impl.col(0)    = zeros<vec>(nt);
-    V_impl.col(nx-1) = zeros<vec>(nt);
-    //V_CN.col(0)      = zeros<vec>(nt);
-    //V_CN.col(nx-1)   = zeros<vec>(nt);
-    */
 
     for(int i=0; i<nx-2; i++){
         V_expl.col(i+1) = v_expl.col(i);
-        cout << "hi" << endl;
         V_impl.col(i+1) = v_impl.col(i);
         V_CN.col(i+1) = v_CN.col(i);
     }
