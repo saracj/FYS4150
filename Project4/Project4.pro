@@ -8,3 +8,4 @@ SOURCES += main.cpp \
 HEADERS += \
     partial_diff.h
 
+LIBS += -larmadillo -lblas -llapack
