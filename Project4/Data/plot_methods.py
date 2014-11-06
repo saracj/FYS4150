@@ -30,14 +30,8 @@ t2 = []
 t1_string = []
 t2_string = []
 for i in range(1, len(sys.argv)):
-	filename = sys.argv[i].split('_')
+	filename = sys.argv[i].split('.')
 	methods.append(filename[0])
-	t1.append(filename[1].split('=')[1])
-	t2.append('0.'+filename[2].split('=')[1].split('.')[1])
-	t1_string.append(t1[i-1].split('.')[1])
-	t2_string.append(t2[i-1].split('.')[1])	
-print methods, t1, t2
-
 
 x, analytical_t1, analytical_t2 = read_file(sys.argv[1]) # Analytical
 x, expl_t1, expl_t2 = read_file(sys.argv[2]) # Explicit
@@ -50,12 +44,11 @@ plt.plot(x, expl_t1)
 plt.plot(x, impl_t1)
 plt.plot(x, CN_t1)
 plt.plot(x, np.zeros(len(x)), '--k')
-plt.xlabel('Position x')
-plt.ylabel('Concentration u')
+plt.xlabel('Position x', fontsize=16)
+plt.ylabel('Concentration u', fontsize=16)
 plt.legend(['Analytical', 'Explicit', 'Implicit', 'Crank-Nicolson'])
-#plt.title(methods[0]+', '+methods[1]+', '+methods[2]+' | t = '+t1[0])
-plt.title('Implicit, Explicit & Crank-Nicolson | t = '+t1[0], y = 1.02)
-plt.savefig('Solution_t='+t1_string[0]+'.png')
+plt.title('Implicit, Explicit & Crank-Nicolson, t = 0.025', y = 1.02)
+plt.savefig('Solution.png')
 plt.show()
 
 plt.figure(2)
@@ -64,12 +57,11 @@ plt.plot(x, expl_t2)
 plt.plot(x, impl_t2)
 plt.plot(x, CN_t2)
 plt.plot(x, np.zeros(len(x)), '--k')
-plt.xlabel('Position x')
-plt.ylabel('Concentration u')
+plt.xlabel('Position x', fontsize=16)
+plt.ylabel('Concentration u', fontsize=16)
 plt.legend(['Analytical', 'Explicit', 'Implicit', 'Crank-Nicolson'])
-#plt.title(methods[0]+', '+methods[1]+', '+methods[2]+' | t = '+t2[0])
-plt.title('Implicit, Explicit & Crank-Nicolson | t = '+t2[0], y = 1.02)
-plt.savefig('Solution_t='+t2_string[0]+'.png')
+plt.title('Implicit, Explicit & Crank-Nicolson, t = 0.75', y = 1.02)
+plt.savefig('Solution.png')
 plt.show()
 
 
