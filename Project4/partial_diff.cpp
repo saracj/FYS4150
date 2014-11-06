@@ -25,7 +25,9 @@ partial_diff::partial_diff(double position_step, double time_step, double end_ti
 // Solves time evolution of the diffusion equation
 // using the Explicit scheme
 mat partial_diff::EXPLICIT(mat u){
-
+    // Should change all these methods to element-wise calculations,
+    // instead of matrix multiplications, in order to save computation
+    // time.....
     A = eye<mat>(nx-2,nx-2) - alpha*B;
 
     for(int j=0; j<nt-1; j++){
