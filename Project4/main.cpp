@@ -13,7 +13,7 @@ int main(){
 
     double  T  =  1.;
     double  d  =  1.;
-    double  dx =  1./10;        // Position step.
+    double  dx =  1./100;        // Position step.
     double  dt =  dx*dx*(1./2); // Demanded by stability: dt/dx^2 <= 1/2
     double  D  =  1.;           // Diffusion coefficient
     int     nt =  T/dt;         // Number of time steps
@@ -45,6 +45,10 @@ int main(){
     partial_diff implicit_solution(dx, dt, T, d, nx, nt, D);
     partial_diff CN_solution(dx, dt, T, d, nx, nt, D);
 
+    cout << size(t) << endl;
+    cout << "time 1: " << t(500) << endl;
+    cout << "time 2: " << t(15000) << endl;
+    //cout << t << endl;
 
     // Get the different solutions
     v_expl  =  explicit_solution.EXPLICIT(v); // Explicit method
@@ -69,20 +73,24 @@ int main(){
     UCN   = V_CN + Us;
 
     // Analytic solution:
-    int n = 1000;
+    int n = 500;
     for(int k=1; k<n; k++){
         for(int i=0; i<nx; i++)
             for(int j=0; j<nt; j++){
                 u_analytic(j,i) += (-2/(k*M_PI))*sin(k*M_PI*x(i))*exp(-k*k*M_PI*M_PI*t(j));
+
+                }
+                if (k % (n/100) == 0 && n > 5) {
+                    printf("Progress, analytical solution: %5.1f %% \r", 100*k/ ((double) n));
+                    fflush(stdout);
         }
     }
     u_analytic += Us;
-
     // Write the numerical and analytic solutions at two different times
-    WriteToFile("Explicit", x, Uexpl.row(10).t(),      Uexpl.row(190).t(),      t(10), t(190));
-    WriteToFile("Implicit", x, Uimpl.row(10).t(),      Uimpl.row(190).t(),      t(10), t(190));
-    WriteToFile("CN",       x, UCN.row(10).t(),        UCN.row(190).t(),        t(10), t(190));
-    WriteToFile("Analytic", x, u_analytic.row(10).t(), u_analytic.row(190).t(), t(10), t(190));
+    WriteToFile("Explicit", x, Uexpl.row(500).t(),      Uexpl.row(15000).t(),      t(10), t(190));
+    WriteToFile("Implicit", x, Uimpl.row(500).t(),      Uimpl.row(15000).t(),      t(10), t(190));
+    WriteToFile("CN",       x, UCN.row(500).t(),        UCN.row(15000).t(),        t(10), t(190));
+    WriteToFile("Analytic", x, u_analytic.row(500).t(), u_analytic.row(15000).t(), t(10), t(190));
 
 
     return 0;
@@ -92,7 +100,7 @@ int main(){
 void WriteToFile(string filename, vec position, vec data1, vec data2, double TimeStep1, double TimeStep2){
      string TimeStep_string1 = static_cast<ostringstream*>(&(ostringstream() << TimeStep1) )->str();
      string TimeStep_string2 = static_cast<ostringstream*>(&(ostringstream() << TimeStep2) )->str();
-     string FileName = "../Project4/Data/"+filename+"_t1="+TimeStep_string1+"_t2="+TimeStep_string2+".dat";
+     string FileName = "../Project4/Data/"+filename+".dat";
      cout << FileName << endl;
      ofstream outFile;
 

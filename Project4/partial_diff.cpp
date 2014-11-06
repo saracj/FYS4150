@@ -77,7 +77,6 @@ vec partial_diff::TRIDIAG(vec f, mat A){
     c(n-1) = 0;
     b = A.diag();
 
-    cout << "hi" << endl;
     for(int i=0; i<n-1; i++){
         a(i+1) = A.diag(-1)(i);
         c(i) = A.diag(1)(i);
