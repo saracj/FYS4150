@@ -9,13 +9,15 @@
 
 class jump{
 private:
-    double eps, xnew, xold, l0, d;
-    int dim, nu, nt;
+    double eps, xnew, xold, l0, d, pos;
+    int dim, nu, nt, k_end;
     int counter1, counter2, counter3, counter4; // If-test counters
     arma::mat all_pos;
+    //arma::vec pos;
     std::vector<particles*> u;
+    std::vector<int> erase_indices;
 
-    void left_right(double random_number, double prev_position, int position_step_i);
+    void left_right(double random_number, int position_step_i);
 
 public:
     jump(int dimensions, int number_of_timesteps, double position_step_length, double interval_length); // Constructor

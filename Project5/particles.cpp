@@ -11,7 +11,8 @@ particles::particles(double pos){
 
 // Updates postion
 void particles::setPos(double newPosition){
-    this->position = newPosition;
+    position = newPosition;
 }
 
+// Returns position
 double particles::getPos(){ return position; }

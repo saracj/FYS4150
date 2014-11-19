@@ -37,7 +37,9 @@ int main(){
 
     system.particle_loop();
 
-    //cout << system.getAllPositions() << endl;
+    mat system_positions = system.getAllPositions();
+
+    mat sys = system_positions + 1;
 
     return 0;
 }
