@@ -9,11 +9,11 @@
 
 class jump{
 private:
-    double eps, xnew, l0, d;
+    double eps, xnew, xold, l0, d;
     int dim, nu, nt;
     int counter1, counter2, counter3, counter4; // If-test counters
     arma::mat all_pos;
-    vector<particles*> u;
+    std::vector<particles*> u;
 
     void left_right(double random_number, double prev_position, int position_step_i);
 
@@ -22,7 +22,7 @@ public:
 
     void AddParticle(particles*);
     void particle_loop();
-    int getNumberOfParticle();
+    int getNumberOfParticles();
     arma::mat getAllPositions();
 
 };

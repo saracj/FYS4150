@@ -13,6 +13,7 @@ jump::jump(int m_dimensions, int m_nt, double m_l0, double m_d){
     this->nt = m_nt;
     this->l0 = m_l0;
     this->d  = m_d;
+
 }
 
 
@@ -22,7 +23,7 @@ void jump::AddParticle(particles *newparticle){
 
 
 void jump::particle_loop(){
-    counter1 = 0; counter2 = 0; counter3 = 0; counter4 = 0;
+    counter1 = 0; counter2 = 0; counter3 = 0;
 
     for(int j=0; j<nt; j++){
 
@@ -30,8 +31,9 @@ void jump::particle_loop(){
         for(int i=(nu-1); i>=0; i--){
 
             eps = rand() % 100; eps /= 100;
-            xold = u[i]->getPos;
+            xold = u[i]->getPos();
             // cout << eps << endl;
+
             left_right(eps, xold, i);
         }
     }
@@ -40,7 +42,6 @@ void jump::particle_loop(){
     cout << "counter 1 = " << counter1 << endl;
     cout << "counter 2 = " << counter2 << endl;
     cout << "counter 3 = " << counter3 << endl;
-    cout << "counter 4 = " << counter4 << endl;
 
 }
 
@@ -64,7 +65,8 @@ void jump::left_right(double eps, double xold, int i){
 
         else if(xnew > xold && xold <= 0.){
             // Keep the number of particles at x0 equal to N
-            u.push_back(0.);
+            particles part(0.);
+            u.push_back(&part);
             counter2++;
         }
 
@@ -96,7 +98,8 @@ void jump::left_right(double eps, double xold, int i){
 
         else if(xnew > xold && xold <= 0.){
             // Keep the number of particles at x0 equal to N
-            u.push_back(0.);
+            particles part(0.);
+            u.push_back(&part);
             counter2 += 1;
         }
 
@@ -111,15 +114,18 @@ void jump::left_right(double eps, double xold, int i){
 
 
 mat jump::getAllPositions(){
-    all_pos = zeros<vec>(u.size(),dim); // 1D
-    for(i=0; i<( u.size()-1 ); i++){
+    all_pos = zeros<vec>(u.size(),dim);
+    nu = getNumberOfParticles();
+
+    for(int i=0; i<nu; i++){
         // 2D:
         // all_pos.row(i) = u[i].getPos();
 
         // 1D:
         all_pos(i,0) = u[i]->getPos();
+        //cout << all_pos(i,0) << endl;
     }
     return all_pos;
 }
 
-int jump::getNumberOfParticle(){ return u.size();}
+int jump::getNumberOfParticles(){ return u.size();}
