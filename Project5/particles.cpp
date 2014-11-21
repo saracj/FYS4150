@@ -5,9 +5,9 @@
 using namespace std;
 using namespace arma;
 
-particles::particles(double pos){
-    this->position = pos;
-}
+particles::particles(double pos) :
+    position(pos)
+{ }
 
 // Updates postion
 void particles::setPos(double newPosition){

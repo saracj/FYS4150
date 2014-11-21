@@ -10,7 +10,7 @@ private:
     // arma::vec position, newPosition;
 
     // 1D case:
-    double position, newPosition;
+    double position;
 
 
 public:
