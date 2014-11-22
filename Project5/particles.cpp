@@ -7,7 +7,8 @@ using namespace arma;
 
 particles::particles(double pos) :
     position(pos)
-{ }
+{
+}
 
 // Updates postion
 void particles::setPos(double newPosition){
