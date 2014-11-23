@@ -14,10 +14,10 @@ using namespace arma;
 
 int main(){
     double D  = 1., dt = 1e-3, l0 = sqrt(2.*D*dt), t_end = 1., d = 1.;
-    int N  = 1e4, dimensions = 1, nt = t_end/dt;
+    int N  = 1e3, dimensions = 1, nt = t_end/dt;
 
     // Construct system of particles
-    jump system(dimensions, nt, l0, d, N);
+    jump system(dimensions, nt, dt, l0, D, d, N);
 
     system.particle_loop();
 

@@ -9,22 +9,23 @@
 
 class jump{
 private:
-    double l0, d, tolerance;
+    double D, d, l0, l, dt, tolerance;
     int dim, nu, nt, N;
     int counter1, counter2, counter3, counter4; // If-test counters
     arma::mat all_pos;
     //arma::vec pos;
     std::vector<int> erase_indices;
 
-    void left_right(double random_number, int position_step_i);
+    void left_right(double random_number, int position_step_i, double step_length);
 
 public:
-    jump(int dimensions, int number_of_timesteps, double position_step_length, double interval_length, int number_of_part_at_0); // Constructor
+    jump(int dimensions, int time_steps, double time_step_length, double position_step_length, double diffusion_coeff, double position_interval, int particles_at_x0); // Constructor
 
     std::vector<particles*> u;
     void AddParticle(particles*);
     void particle_loop();
     void histogram();
+    void writeToFile(std::string filename, std::vector<particles*> data);
     int getNumberOfParticles();
 
 };
