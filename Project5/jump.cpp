@@ -1,4 +1,5 @@
 #include "jump.h"
+#include "gaussiandeviate.cpp"
 #include <cmath>
 #include <iostream>
 #include <fstream>
@@ -6,7 +7,6 @@
 #include <vector>
 #include <typeinfo>
 #include <algorithm>
-#include <random>
 
 using namespace arma;
 using namespace std;
@@ -38,10 +38,8 @@ void jump::particle_loop() {
 
 
     // Setting up normal distribution of random numbers:
-    double mean = 0;
     double stddev = 1./sqrt(2);
-    default_random_engine normal_generator;
-    normal_distribution<double> distribution(mean,stddev);
+
 
 
     for(int j=0; j<nt; j++) {
@@ -51,13 +49,13 @@ void jump::particle_loop() {
             fflush(stdout);
         }
 
-
+        long idum = -1;
         int nzero = 0;
         for(int i=(getNumberOfParticles()-1); i>=0; i--) {
             double eps = rand() % 100; eps /= 100;
-            double ksi = distribution(normal_generator);
-            cout << "ksi = " << ksi << endl;
-            l = sqrt(2.*D*dt)*ksi;
+            double ksi = gaussian_deviate (& idum );
+            // cout << "ksi = " << ksi << endl;
+            l = sqrt(2.*D*dt)*ksi*stddev;
             left_right(eps, i, l);
             if(u[i]->getPos() <= tolerance && u[i]->getPos() >= -tolerance) { nzero++; }
         }
@@ -76,7 +74,7 @@ void jump::particle_loop() {
         for(int i=(getNumberOfParticles()-1); i>=0; i--) {
             if(u[i]->getPos() == 0.) { nzero++; }
         }
-        // cout << "number of particles at x = 0: N = " << nzero << endl;
+        cout << "number of particles at x = 0: N = " << nzero << endl;
 
         //Rese number of particles at 0 to N
         for(int k=0; k<N; k++){
