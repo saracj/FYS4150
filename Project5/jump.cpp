@@ -11,18 +11,14 @@
 using namespace arma;
 using namespace std;
 
-jump::jump(int dimensions, int time_steps, double time_step_length, double position_step_length, double diffusion_coeff, double position_interval, int particles_at_x0) :
-    D(diffusion_coeff), d(position_interval), l0(position_step_length), dt(time_step_length),
+jump::jump(int dimensions, int time_steps, double time_step_length, double diffusion_coeff, double position_interval, int particles_at_x0) :
+    D(diffusion_coeff), d(position_interval), dt(time_step_length),
     dim(dimensions), nt(time_steps), N(particles_at_x0),
     counter1(0), counter2(0), counter3(0), counter4(0)
 {
 tolerance = 1e-10;
 l0 = sqrt(2.*D*dt);
-}
-
-
-void jump::AddParticle(particles *newparticle){
-    u.push_back(newparticle);
+stddev = (1./sqrt(2));
 }
 
 
@@ -31,17 +27,13 @@ void jump::particle_loop() {
 
 
     // Construct u-vector at t = 0:
-    for(int k=0; k<=N; k++){
+    for(int k=0; k<=N; k++) {
         particles *part = new particles(0.);
         AddParticle(part);
     }
 
 
-    // Setting up normal distribution of random numbers:
-    double stddev = 1./sqrt(2);
-
-
-
+    long idum = -1; // RNG seed
     for(int j=0; j<nt; j++) {
 
         if (j % (nt/100) == 0 && nt > 0) {
@@ -49,15 +41,22 @@ void jump::particle_loop() {
             fflush(stdout);
         }
 
-        long idum = -1;
-        int nzero = 0;
+
+
         for(int i=(getNumberOfParticles()-1); i>=0; i--) {
-            double eps = rand() % 100; eps /= 100;
             double ksi = gaussian_deviate (& idum );
             // cout << "ksi = " << ksi << endl;
             l = sqrt(2.*D*dt)*ksi*stddev;
-            left_right(eps, i, l);
-            if(u[i]->getPos() <= tolerance && u[i]->getPos() >= -tolerance) { nzero++; }
+            //cout << l << endl;
+            random_walk(i, l);
+
+
+            /*
+            // Constant step length, assignment a).
+            double eps = rand() % 100; eps /= 100;
+            if(eps <= 0.5) { random_walk(i, -l0); } // LEFT
+            else{ random_walk(i, l0); } // RIGHT
+            */
         }
 
 
@@ -70,11 +69,7 @@ void jump::particle_loop() {
         }
         erase_indices.clear();
 
-        // u[i]->getPos() <= tolerance && u[i]->getPos() >= -tolerance
-        for(int i=(getNumberOfParticles()-1); i>=0; i--) {
-            if(u[i]->getPos() == 0.) { nzero++; }
-        }
-        cout << "number of particles at x = 0: N = " << nzero << endl;
+
 
         //Rese number of particles at 0 to N
         for(int k=0; k<N; k++){
@@ -83,54 +78,53 @@ void jump::particle_loop() {
             counter2++;
         }
 
+        /*
+        // Check number of particles at x = 0.
+        int nzero = 0;
+        for(int i=(getNumberOfParticles()-1); i>=0; i--) {
+            if(u[i]->getPos() == 0.) { nzero++; }
+        }
+        cout << "number of particles at x = 0: N = " << nzero << endl;
+        */
+
     }
 
-    // If-test counters
+    // If-test counters:
     cout << "\nParticles erased " << counter1 << " times" << endl;
     cout << "Particles added " << counter2 << " times" << endl;
     cout << "Particles moved " << counter3 << " times" << endl;
 
 
     // Write vector to file:
-    // writeToFile("constStepLength", u);
+    writeToFile("gaussStepLength", u);
 }
 
 
-void jump::left_right(double eps, int i, double step) {
+void jump::random_walk(int i, double step){
+    // INPUT: Particle index -i-, step length -step-
+    // Calculates the particles next position from the given step length.
+    // Checks if the particle is placed outside the interval and saves this particles
+    // index so that it can be removed at the end of this time step.
+
     double xold = u[i]->getPos();
+    double xnew = xold + step;
 
-    if(eps <= 0.5) { // LEFT
-        double xnew = xold - step;
 
-        if(xnew <= tolerance) {
-            // Remove if the particle is placed outside of the x interval, 0 to d
-            erase_indices.push_back(i);
-            counter1++;
-        }
-        else {
-            u[i]->setPos(xnew);
-            counter3++;
-        }
+    if(xnew <= 0. || xnew >= d) {
+        // Remove if the particle is placed outside of the x interval, 0 to d
+        erase_indices.push_back(i);
+        counter1++;
     }
-
-
-    else { // RIGHT
-        double xnew = xold + step;
-
-        if(xnew >= d - tolerance) {
-            // Remove if the particle is placed outside of the x interval, 0 to d
-            erase_indices.push_back(i);
-            counter1++;
-        }
-        else {
-            u[i]->setPos(xnew);
-            counter3++;
-        }
+    else {
+        u[i]->setPos(xnew);
+        counter3++;
     }
 }
+
 
 
 void jump::histogram(){
+    // Creates a makeshift histogram as a printout used to check the results.
     double nx = 100., x0 = 0., dx = (d - x0)/nx;
     vector<int> box(nx, 0);
 
@@ -152,7 +146,11 @@ void jump::histogram(){
     }
 }
 
+
+
 void jump::writeToFile(string filename, vector<particles*> data){
+    // Input: Filenam, vector of data with
+
     string FileName = "../Project5/Data/Histogram_"+filename+".dat";
     cout << FileName << endl;
     ofstream outFile;
@@ -169,4 +167,7 @@ void jump::writeToFile(string filename, vector<particles*> data){
     outFile.close();
 }
 
-int jump::getNumberOfParticles(){ return u.size();}
+
+
+int jump::getNumberOfParticles() { return u.size();}
+void jump::AddParticle(particles *newparticle) { u.push_back(newparticle); }

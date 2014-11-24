@@ -9,7 +9,7 @@
 
 class jump{
 private:
-    double D, d, l0, l, dt, tolerance;
+    double D, d, l0, l, dt, tolerance, stddev;
     int dim, nu, nt, N;
     int counter1, counter2, counter3, counter4; // If-test counters
     arma::mat all_pos;
@@ -17,9 +17,10 @@ private:
     std::vector<int> erase_indices;
 
     void left_right(double random_number, int position_step_i, double step_length);
+    void random_walk(int particle_index_i, double step_length_l);
 
 public:
-    jump(int dimensions, int time_steps, double time_step_length, double position_step_length, double diffusion_coeff, double position_interval, int particles_at_x0); // Constructor
+    jump(int dimensions, int time_steps, double time_step_length, double diffusion_coeff, double position_interval, int particles_at_x0); // Constructor
 
     std::vector<particles*> u;
     void AddParticle(particles*);
