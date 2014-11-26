@@ -13,8 +13,8 @@ using namespace std;
 using namespace arma;
 
 int main(){
-    double D  = 0.1, dt = 1e-3, t_end = 4., d = 1.;
-    int N  = 1e3, dimensions = 1, nt = t_end/dt;
+    double D  = 0.01, dt = 1e-3, t_end = 10., d = 1.;
+    int N  = 1e3, dimensions = 1, nt = 5000;// = t_end/dt;
 
     cout << nt << endl;
 

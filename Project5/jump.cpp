@@ -44,11 +44,12 @@ void jump::particle_loop() {
 
 
         for(int i=(getNumberOfParticles()-1); i>=0; i--) {
-            double ksi = gaussian_deviate (& idum );
-            // cout << "ksi = " << ksi << endl;
-            l = sqrt(2.*D*dt)*ksi*stddev;
-            //cout << l << endl;
+
+            double ksi = stddev*gaussian_deviate (& idum );
+            l = sqrt(2.*D*dt)*ksi;
             random_walk(i, l);
+            // cout << "ksi = " << ksi << endl;
+            //cout << l << endl;
 
 
             /*
@@ -142,7 +143,7 @@ void jump::histogram(){
     int nbox =  box.size();
     for(int i=0; i<=nbox; i++) {
         if(box[i] != 0.) { cout << box[i]  << " particles in [" << dx*i << ", " << dx*(i+1) << "]" << endl; }
-        else { cout << "Box " << i << " is empty" << endl;}
+        //else { cout << "Box " << i << " is empty" << endl;}
     }
 }
 
